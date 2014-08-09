@@ -1,0 +1,137 @@
+@media (min-width: 979px) and (max-width: 1200px){
+
+  .portfoliogrid li{
+    width: 33%;
+  }
+
+  .portfoliogrid li:nth-child(3n + 1){
+    clear: both;
+    display: inline-table;
+    margin: 0;
+  }
+
+  .portfoliogrid li .img-hover {
+      opacity:1;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 978px){
+
+  .portfoliogrid li:nth-child(2n + 1) {
+    width: 50%;
+    clear: both;
+    display: inline-table;
+    margin: 0;
+  }
+
+  .portfoliogrid li:nth-child(2n + 2) {
+    width: 50%;
+    clear: both;
+    display: inline-table;
+    margin: 0;
+  }
+
+  .portfoliogrid li .img-hover {
+      opacity:1;
+  }
+
+  .home-content{
+    padding: 0 50px;
+  }
+
+}
+
+
+@media (max-width: 767px) {
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #ffffff;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #7ccbfc;
+    background-color: #393e52;
+  }
+  
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a,
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #7ccbfc;
+    background-color: #393e52;
+  }
+  
+  .navbar-default .navbar-nav .open .dropdown-menu > .disabled > a,
+  .navbar-default .navbar-nav .open .dropdown-menu > .disabled > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > .disabled > a:focus {
+    color: #cccccc;
+    background-color: transparent;
+  }
+
+  .navbar-default .navbar-nav .dropdown-menu .divider {
+    display: none;
+  }
+
+  #home{
+    text-align: center;
+    padding: 140px 0 0 !important;
+  }
+
+  #home .home-content{
+    padding: 0 !important;
+  }
+}
+
+@media (min-width: 480px) and (max-width: 767px){
+
+  body{
+    padding: 0;
+    margin: 0;
+  }
+
+  .portfoliogrid li:nth-child(2n + 1) {
+    width: 50%;
+    clear: both;
+    display: inline-table;
+    margin: 0;
+  }
+
+  .portfoliogrid li:nth-child(2n + 2) {
+    width: 50%;
+    clear: both;
+    display: inline-table;
+    margin: 0;
+  }
+
+  .portfoliogrid li .img-hover {
+      opacity:1;
+  }
+
+  .home-content{
+    padding: 0 40px;
+  }
+}
+
+@media (max-width: 480px){
+
+  body{
+    padding: 0;
+    margin: 0;
+  }
+
+  .portfoliogrid li:nth-child(1n + 1) {
+    width: 100%;
+    clear: both;
+    display: inline-table;
+    margin: 0;
+  }
+
+  .portfoliogrid li .img-hover {
+      opacity:1;
+  }
+
+  .home-content{
+    padding: 0 20px;
+  }
+}
