@@ -565,7 +565,6 @@ About
 */
 #contact{
 	text-align: center;
-	padding: 55px 0 0;
 	position: relative;
 	background: #474d66;
 }
@@ -581,7 +580,7 @@ About
 
 .contact-title{
 	position: absolute;
-	top: 55px;
+	top: 0px;
 	left: 50%;
 	margin-left: -160px;
 	background: rgba(71,77,102,0.8);
