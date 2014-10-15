@@ -2,7 +2,7 @@
 @import url(font-awesome.css);
 
 body{
-	background: #52627F;
+	background: #3692bcff;
 	padding: 0;
 	margin: 0;
 	font-family: 'Lato', sans-serif;
@@ -15,6 +15,7 @@ h1,h2,h3,h4,h5,h6{
 }
 
 a{
+    color: #eee;
 	-o-transition: all 0.2s ease-in-out;
 	-webkit-transition: all 0.2s ease-in-out;
 	-moz-transition: all 0.2s ease-in-out;
@@ -183,21 +184,11 @@ a:hover{
 	Home
 */
 .img-profile{
-	width: 200px;
-	height: 200px;
+	width: 480px;
+	height: 480px;
 	overflow: hidden;
-	-o-border-radius: 130px;
-	-moz-border-radius: 130px;
-	-webkit-border-radius: 130px;
-	border-radius: 130px;
 	margin-left: auto;
 	margin-right: auto;
-	margin-bottom: 60px;
-	border: 6px solid #474d66;
-	-o-box-shadow: 0 0 0px 24px #393e52;
-	-moz-box-shadow: 0 0 0px 24px #393e52;
-	-webkit-box-shadow: 0 0 0px 24px #393e52;
-	box-shadow: 0 0 0px 24px #393e52;
 }
 
 #home{
