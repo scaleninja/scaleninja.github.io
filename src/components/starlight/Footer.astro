@@ -1,0 +1,315 @@
+---
+// Custom footer that overrides Starlight's default footer
+import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
+---
+
+<footer class="custom-footer">
+    <div class="footer-container">
+        <div class="footer-main">
+            <!-- Logo and tagline -->
+            <div class="footer-brand">
+                <a href="/" class="footer-logo">
+                    <SiteTitle />
+                </a>
+                <p class="footer-tagline">Building the future of lorem ipsum</p>
+                <!-- Social icons -->
+                <div class="footer-social">
+                    <a href="mailto:contact@scaleninja.com" aria-label="Email">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                        </svg>
+                    </a>
+                    <a href="https://github.com/scaleninja" target="_blank" rel="noopener" aria-label="GitHub">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 .3a12 12 0 0 0-3.8 23.38c.6.12.83-.26.83-.57L9 21.07c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.09-.73.09-.73 1.2.09 1.83 1.24 1.83 1.24 1.08 1.83 2.81 1.3 3.5 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23.64 1.66.24 2.88.12 3.18a4.65 4.65 0 0 1 1.23 3.22c0 4.61-2.8 5.63-5.48 5.92.42.36.81 1.1.81 2.22l-.01 3.29c0 .31.2.69.82.57A12 12 0 0 0 12 .3Z"/>
+                        </svg>
+                    </a>
+                    <a href="https://twitter.com/scaleninja" target="_blank" rel="noopener" aria-label="Twitter">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M24 4.4a10 10 0 0 1-2.83.78 5.05 5.05 0 0 0 2.17-2.79 9.7 9.7 0 0 1-3.13 1.23 4.89 4.89 0 0 0-5.94-1.03 5 5 0 0 0-2.17 2.38 5.15 5.15 0 0 0-.3 3.25c-1.95-.1-3.86-.63-5.61-1.53a14.04 14.04 0 0 1-4.52-3.74 5.2 5.2 0 0 0-.09 4.91c.39.74.94 1.35 1.61 1.82a4.77 4.77 0 0 1-2.23-.63v.06c0 1.16.4 2.29 1.12 3.18a4.9 4.9 0 0 0 2.84 1.74c-.73.22-1.5.26-2.24.12a4.89 4.89 0 0 0 4.59 3.49A9.78 9.78 0 0 1 0 19.73 13.65 13.65 0 0 0 7.55 22a13.63 13.63 0 0 0 9.96-4.16A14.26 14.26 0 0 0 21.6 7.65V7c.94-.72 1.75-1.6 2.4-2.6Z"/>
+                        </svg>
+                    </a>
+                    <a href="https://discord.gg/yourserver" target="_blank" rel="noopener" aria-label="Discord">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026c.462-.62.874-1.275 1.226-1.963.021-.04.001-.088-.041-.104a13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028ZM8.02 15.278c-1.182 0-2.157-1.069-2.157-2.38 0-1.312.956-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.956 2.38-2.157 2.38Zm7.975 0c-1.183 0-2.157-1.069-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.946 2.38-2.157 2.38Z"/>
+                        </svg>
+                    </a>
+                    <a href="https://www.linkedin.com/company/scaleninja" target="_blank" rel="noopener" aria-label="LinkedIn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                        </svg>
+                    </a>
+                    <a href="https://www.reddit.com/user/scaleninja" target="_blank" rel="noopener" aria-label="Reddit">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/>
+                        </svg>
+                    </a>
+                    <a href="https://www.youtube.com/@scaleninja" target="_blank" rel="noopener" aria-label="YouTube">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Footer links sections -->
+            <div class="footer-links">
+                <div class="footer-section">
+                    <h4>What We do</h4>
+                    <ul>
+                        <li><a href="/solutions">Solutions</a></li>
+                        <li><a href="/products">Products</a></li>
+                        <li><a href="/resources">Resources</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Developers</h4>
+                    <ul>
+                        <li><a href="/guides/getting-started">Quick Start</a></li>
+                        <li><a href="/guides/installation">Installation</a></li>
+                        <li><a href="/reference/api">API Reference</a></li>
+                        <li><a href="/reference/configuration">Configuration</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="/guides/getting-started">Documentation</a></li>
+                        <li><a href="https://github.com/yourusername/yourproject/discussions" target="_blank" rel="noopener">Community Forum</a></li>
+                        <li><a href="https://github.com/yourusername/yourproject/issues" target="_blank" rel="noopener">Report Issues</a></li>
+                        <li><a href="/support">Contact Support</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="/about">About Us</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                        <li><a href="/careers">Careers</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer bottom -->
+        <div class="footer-bottom">
+            <div class="footer-bottom-left">
+                <p>&copy; 2014-{new Date().getFullYear()} ScaleNinja. All rights reserved.</p>
+            </div>
+            <div class="footer-bottom-right">
+                <a href="/privacy">Privacy Policy</a>
+                <span class="separator">•</span>
+                <a href="/terms">Terms of Service</a>
+                <span class="separator">•</span>
+                <a href="/cookies">Cookie Policy</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+    .custom-footer {
+        border-top: 1px solid var(--sl-color-gray-5);
+        padding: 4rem 1.5rem 2rem;
+        margin-top: 4rem;
+        background: var(--sl-color-bg);
+    }
+
+    .footer-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .footer-main {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 4rem;
+        padding-bottom: 3rem;
+    }
+
+    /* Brand section */
+    .footer-brand {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .footer-logo {
+        display: inline-block;
+        text-decoration: none;
+        position: relative;
+        /* Reserve space for logo to prevent layout shift */
+        min-width: 267px;
+        min-height: 40px;
+    }
+
+    .footer-logo img {
+        height: auto;
+        max-height: 40px;
+        width: auto;
+        max-width: 267px;
+        display: block;
+        transition: opacity 0.2s ease;
+    }
+
+    .footer-tagline {
+        margin: 0;
+        color: var(--sl-color-gray-2);
+        font-size: 0.9375rem;
+        line-height: 1.6;
+        max-width: 280px;
+    }
+
+    .footer-social {
+        display: flex;
+        gap: 1.25rem;
+        align-items: center;
+    }
+
+    .footer-social a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--sl-color-gray-3);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        opacity: 0.8;
+    }
+
+    .footer-social a:hover {
+        color: var(--sl-color-accent);
+        opacity: 1;
+        transform: translateY(-1px);
+    }
+
+    .footer-social a svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Links sections */
+    .footer-links {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+    }
+
+    .footer-section h4 {
+        margin: 0 0 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--sl-color-white);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .footer-section ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .footer-section li {
+        margin: 0;
+    }
+
+    .footer-section a {
+        color: var(--sl-color-gray-2);
+        text-decoration: none;
+        font-size: 0.9375rem;
+        transition: color 0.2s ease;
+        display: inline-block;
+    }
+
+    .footer-section a:hover {
+        color: var(--sl-color-accent);
+    }
+
+    /* Footer bottom */
+    .footer-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 2rem;
+        border-top: 1px solid var(--sl-color-gray-6);
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .footer-bottom-left p {
+        margin: 0;
+        color: var(--sl-color-gray-3);
+        font-size: 0.875rem;
+    }
+
+    .footer-bottom-right {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 0.875rem;
+    }
+
+    .footer-bottom-right a {
+        color: var(--sl-color-gray-3);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .footer-bottom-right a:hover {
+        color: var(--sl-color-accent);
+    }
+
+    .footer-bottom-right .separator {
+        color: var(--sl-color-gray-5);
+    }
+
+    /* Responsive design */
+    @media (max-width: 1024px) {
+        .footer-main {
+            grid-template-columns: 1fr;
+            gap: 3rem;
+        }
+
+        .footer-links {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .custom-footer {
+            padding: 3rem 1rem 1.5rem;
+        }
+
+        .footer-links {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .footer-bottom {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .footer-links {
+            grid-template-columns: 1fr;
+        }
+
+        .footer-social {
+            flex-wrap: wrap;
+        }
+
+        .footer-bottom-right {
+            flex-wrap: wrap;
+        }
+    }
+</style>

@@ -1,0 +1,57 @@
+/* Import component styles */
+@import './components/header-navigation.css';
+
+/* Custom Theme Variables */
+:root {
+    --sl-content-width: 60rem;
+
+    /* Brand Colors - Customize these to match your brand */
+    --sl-color-accent-low: #44d62c;
+    --sl-color-accent: #44d62c;
+    --sl-color-accent-high: #24292e;
+}
+
+/* Dark theme adjustments */
+:root[data-theme='dark'] {
+    --sl-color-accent-low: #333;
+    --sl-color-accent: #44d62c;
+    --sl-color-accent-high: #66ff00;
+}
+
+/* nova-link-button styles */
+.nova-link-button {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--custom-border-radius);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--custom-transition-base);
+    cursor: pointer;
+}
+
+.nova-link-button-primary {
+    background: var(--sl-color-accent);
+    color: var(--sl-color-black);
+}
+
+.nova-link-button-primary:hover {
+    background: var(--sl-color-accent-high);
+    transform: translateY(-2px);
+    box-shadow: var(--custom-shadow-md);
+}
+
+.nova-link-button-secondary {
+    background: transparent;
+    color: var(--sl-color-white);
+    border: 1px solid var(--sl-color-gray-5);
+}
+
+.nova-link-button-secondary:hover {
+    border-color: var(--sl-color-accent);
+    background: var(--sl-color-bg-nav);
+}
+
+/* Selection color */
+::selection {
+    background: var(--sl-color-accent);
+    color: var(--sl-color-black);
+}
