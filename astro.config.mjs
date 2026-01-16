@@ -16,7 +16,6 @@ export default defineConfig({
                   authors: {
                     rohit: {
                       name: 'Rohit Yadav',
-                      title: 'Founder & CEO',
                       url: 'https://yadv.in',
                       picture: './src/assets/rohit.png'
                     },
