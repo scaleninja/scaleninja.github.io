@@ -145,15 +145,22 @@ import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
         /* Reserve space for logo to prevent layout shift */
         min-width: 267px;
         min-height: 40px;
+        opacity: 0.5;
+        transition: opacity 0.2s ease;
     }
 
-    .footer-logo img {
+    .footer-logo:hover {
+        opacity: 1;
+    }
+
+    .footer-logo img,
+    .footer-logo svg {
         height: auto;
         max-height: 40px;
         width: auto;
         max-width: 267px;
         display: block;
-        transition: opacity 0.2s ease;
+        color: var(--sl-color-gray-3);
     }
 
     .footer-tagline {

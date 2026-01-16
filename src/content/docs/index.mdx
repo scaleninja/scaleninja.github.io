@@ -1,41 +1,136 @@
 ---
 title: Build. Ship. Run.
-description: Building Apps to Infrastructure
+description: Enterprise-grade on-premises software platform
 template: splash
 hero:
-  tagline: From Apps to Infrastructure
+  tagline: Enterprise-grade on-premises software stack — built on open source, designed for sovereignty.
   image:
-    file: ../../../public/banner.svg
+    file: ../../../public/hero-datacenter.svg
   actions:
-    - text: CloudStack Guide
-      link: /guides/cloudstack/
+    - text: Explore IaaS Guide
+      link: /blog/cloudstack/
       icon: right-arrow
-    - text: Read the external docs
+    - text: View Upstream Documentation
       link: https://docs.cloudstack.apache.org
       icon: external
       variant: minimal
 ---
 
-import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
-import { Card, CardGrid } from '@astrojs/starlight/components';
+{/*
 
-## Lorem Ipsum
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## The On-Prem Cloud Platform
+
+Build and manage your private cloud infrastructure with ScaleNinja. Our platform combines a powerful hypervisor, software-defined storage, and cloud orchestration into a unified solution that rivals public cloud capabilities — all running in your own data center.
+
+<CardGrid>
+  <Card title="nVisor" icon="laptop">
+    Our high-performance hypervisor built on battle-tested open source technology. Run thousands of VMs with near-native performance, live migration, and enterprise-grade reliability. [Learn more →](/products/nvisor/)
+  </Card>
+  <Card title="nStore" icon="seti:folder">
+    Software-defined storage that scales from terabytes to petabytes. Block, object, and file storage unified under one platform with built-in replication and self-healing. [Learn more →](/products/nstore/)
+  </Card>
+  <Card title="nCloud" icon="cloud">
+    Full cloud orchestration with self-service portals, multi-tenancy, usage metering, and API compatibility. Give your teams the cloud experience without the cloud bill. [Learn more →](/products/ncloud/)
+  </Card>
+  <Card title="nNet" icon="random">
+    Software-defined networking with virtual routers, load balancers, firewalls, and VPN. Isolate workloads, segment networks, and connect sites — all in software. [Learn more →](/products/nnet/)
+  </Card>
+</CardGrid>
+
+---
+
+## Desktop Virtualization
+
+<CardGrid>
+  <Card title="MacVisor" icon="apple">
+    Native desktop hypervisor for macOS. Run Linux, Windows, and macOS VMs on your Mac with near-native performance using Apple's Hypervisor.framework. No kernel extensions required. [Learn more →](/products/macvisor/)
+  </Card>
+</CardGrid>
+
+---
+
+## Why On-Premises?
+
+In an era of rising cloud costs, data regulations, and vendor lock-in, organizations are bringing workloads back on-prem. ScaleNinja makes this transition seamless.
 
 <CardGrid stagger>
-    <Card title="Update content" icon="pencil">
-        Edit `src/content/docs/index.mdx` to see this page change.
-    </Card>
-    <Card title="Change page layout" icon="document">
-        Delete `template: splash` in `src/content/docs/index.mdx` to display a
-        sidebar on this page.
-    </Card>
-    <Card title="Add new content" icon="add-document">
-        Add Markdown or MDX files to `src/content/docs` to create new pages.
-    </Card>
-    <Card title="Configure your site" icon="setting">
-        Edit your `sidebar` and other config in `astro.config.mjs`.
-    </Card>
-    <Card title="Read the docs" icon="open-book">
-        Learn more in [the Starlight Docs](https://starlight.astro.build/).
-    </Card>
+  <Card title="Predictable Costs" icon="approve-check-circle">
+    No surprise bills. No egress fees. No per-API charges. Pay once for your hardware, run your infrastructure at a fraction of public cloud costs. Organizations typically see **60-80% cost reduction** compared to equivalent public cloud deployments.
+  </Card>
+  <Card title="Data Sovereignty" icon="star">
+    Your data stays where you put it. Meet GDPR, HIPAA, and industry-specific compliance requirements. Maintain complete control over data locality, access, and retention policies.
+  </Card>
+  <Card title="No Vendor Lock-in" icon="open-book">
+    Built entirely on open source foundations. Standard APIs, portable formats, and no proprietary dependencies. Your infrastructure, your way — migrate workloads freely without penalties.
+  </Card>
+  <Card title="Open Source Core" icon="github">
+    Powered by Apache CloudStack, KVM, Ceph, and other proven open source projects. Benefit from global community innovation, security audits, and transparent development.
+  </Card>
 </CardGrid>
+
+---
+
+## Built for the Modern Data Center
+
+![Modern data center infrastructure](/images/datacenter-diagram.svg)
+
+<CardGrid>
+  <Card title="Automated Operations" icon="setting">
+    Infrastructure-as-code, automated provisioning, self-healing clusters, and intelligent workload placement. Reduce operational overhead while improving reliability.
+  </Card>
+  <Card title="Enterprise Security" icon="warning">
+    Network isolation, encrypted storage, role-based access control, audit logging, and integration with enterprise identity providers. Security built-in, not bolted on.
+  </Card>
+  <Card title="Hybrid Ready" icon="external">
+    Connect to public clouds when you need burst capacity. Unified management across on-prem and cloud resources. The best of both worlds, on your terms.
+  </Card>
+  <Card title="24/7 Support" icon="comment-alt">
+    Enterprise support from engineers who know the stack inside and out. Direct access to experts, not ticket queues. We're invested in your success.
+  </Card>
+</CardGrid>
+
+---
+
+## The ScaleNinja Philosophy
+
+We believe infrastructure should be **simple**, **transparent**, and **empowering**.
+
+### Simple
+Complex doesn't mean capable. Our platform abstracts away infrastructure complexity while giving you full control when you need it. Deploy a VM in seconds, manage a thousand with the same effort.
+
+### Transparent
+No black boxes. Every component is open source, auditable, and well-documented. You can inspect the code, understand the architecture, and modify anything to suit your needs.
+
+### Empowering
+Your team should spend time building applications, not fighting infrastructure. ScaleNinja automates the tedious, surfaces the important, and gets out of your way.
+
+---
+
+## Get Started
+
+<CardGrid>
+  <LinkCard
+    title="Quick Start Guide"
+    description="Deploy your first ScaleNinja cluster in under an hour."
+    href="/guides/cloudstack/"
+  />
+  <LinkCard
+    title="Architecture Overview"
+    description="Understand how ScaleNinja components work together."
+    href="/reference/architecture/"
+  />
+  <LinkCard
+    title="Hardware Requirements"
+    description="Plan your deployment with our sizing guides."
+    href="/reference/requirements/"
+  />
+  <LinkCard
+    title="Community"
+    description="Join the discussion on GitHub and Discord."
+    href="https://github.com/scaleninja"
+  />
+</CardGrid>
+
+*/}

@@ -1,0 +1,280 @@
+---
+const { hasSidebar } = Astro.locals.starlightRoute
+
+import LanguageSelect from 'virtual:starlight/components/LanguageSelect'
+import Search from 'virtual:starlight/components/Search'
+import SiteTitle from 'virtual:starlight/components/SiteTitle'
+import SocialIcons from 'virtual:starlight/components/SocialIcons'
+import ThemeSelect from 'virtual:starlight/components/ThemeSelect'
+import MobileMenuToggle from 'starlight-theme-nova/components/MobileMenuToggle.astro'
+
+// Define navigation with dropdowns
+const navigation = [
+/*
+  {
+    label: 'Products',
+    href: '/products/',
+    dropdown: [
+      { label: 'All Products', href: '/products/', description: 'Overview of ScaleNinja products' },
+      { label: 'nVisor', href: '/products/nvisor/', description: 'Enterprise hypervisor' },
+      { label: 'nStore', href: '/products/nstore/', description: 'Software-defined storage' },
+      { label: 'nCloud', href: '/products/ncloud/', description: 'Cloud orchestration' },
+      { label: 'nNet', href: '/products/nnet/', description: 'Software-defined networking' },
+      { label: 'MacVisor', href: '/products/macvisor/', description: 'Desktop hypervisor for macOS' },
+    ],
+  },
+  {
+    label: 'Solutions',
+    href: '/solutions/',
+    dropdown: [
+      { label: 'All Solutions', href: '/solutions/', description: 'Overview of solutions' },
+      { label: 'Private Cloud', href: '/solutions/private-cloud/', description: 'Build your private cloud' },
+      { label: 'Cloud Repatriation', href: '/solutions/cloud-repatriation/', description: 'Reduce cloud costs' },
+      { label: 'Disaster Recovery', href: '/solutions/disaster-recovery/', description: 'Business continuity' },
+      { label: 'Dev/Test', href: '/solutions/devtest/', description: 'Development environments' },
+    ],
+  },
+  {
+    label: 'Resources',
+    dropdown: [
+      { label: 'Guides', href: '/guides/cloudstack/' },
+      { label: 'Blog', href: '/blog' },
+    ],
+  },
+*/
+  { label: 'Blog', href: '/blog' },
+  { label: 'Contact', href: '/contact/' },
+]
+---
+
+<div class="nova-header">
+  <div class="nova-header-title">
+    <SiteTitle />
+  </div>
+  <nav class="nova-header-nav">
+    {navigation.map((item) => (
+      item.dropdown ? (
+        <div class="nav-dropdown">
+          <button class="nova-header-nav-link dropdown-trigger" aria-expanded="false" aria-haspopup="true">
+            {item.label}
+            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="dropdown-menu">
+            {item.dropdown.map((subItem) => (
+              <a href={subItem.href} class="dropdown-item">
+                <span class="dropdown-item-label">{subItem.label}</span>
+                {subItem.description && (
+                  <span class="dropdown-item-description">{subItem.description}</span>
+                )}
+              </a>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <a class="nova-header-nav-link" href={item.href}>
+          {item.label}
+        </a>
+      )
+    ))}
+  </nav>
+  <div class="nova-header-search">
+    <Search />
+  </div>
+  <div class="nova-header-actions-lg">
+    <SocialIcons />
+    <LanguageSelect />
+    <ThemeSelect />
+  </div>
+  {hasSidebar && (
+    <div class="nova-header-actions-sm">
+      <MobileMenuToggle />
+    </div>
+  )}
+</div>
+
+<style>
+  /* Override nova-header-nav overflow to allow dropdowns */
+  .nova-header-nav {
+    overflow: visible !important;
+  }
+
+  .nova-header {
+    overflow: visible !important;
+  }
+
+  .nav-dropdown {
+    position: relative;
+  }
+
+  /* Consistent styling for all nav items */
+  .nova-header-nav-link,
+  .dropdown-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font: inherit;
+    padding: 0.5rem 0.75rem;
+    color: var(--sl-color-gray-3) !important;
+    text-decoration: none;
+  }
+
+  .nova-header-nav-link:hover,
+  .dropdown-trigger:hover {
+    color: var(--sl-color-white) !important;
+  }
+
+  .dropdown-arrow {
+    transition: transform 0.2s ease;
+  }
+
+  .nav-dropdown:hover .dropdown-arrow,
+  .nav-dropdown:focus-within .dropdown-arrow {
+    transform: rotate(180deg);
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    min-width: 280px;
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 8px;
+    box-shadow: var(--sl-shadow-lg);
+    padding: 0.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    z-index: 9999;
+  }
+
+  .nav-dropdown:hover .dropdown-menu,
+  .nav-dropdown:focus-within .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .dropdown-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--sl-color-text);
+    transition: background-color 0.1s ease;
+  }
+
+  .dropdown-item:hover {
+    background: var(--sl-color-bg-nav);
+  }
+
+  .dropdown-item-label {
+    font-weight: 500;
+    color: var(--sl-color-white);
+  }
+
+  .dropdown-item:hover .dropdown-item-label {
+    color: var(--sl-color-text-accent);
+  }
+
+  .dropdown-item-description {
+    font-size: 0.8125rem;
+    color: var(--sl-color-gray-2);
+  }
+
+  /* Mobile: hide dropdowns, show as regular links */
+  @media (max-width: 768px) {
+    .dropdown-menu {
+      display: none;
+    }
+
+    .dropdown-trigger {
+      pointer-events: none;
+    }
+
+    .dropdown-arrow {
+      display: none;
+    }
+
+    .nav-dropdown .dropdown-trigger {
+      pointer-events: auto;
+    }
+  }
+
+  /* Search input styling to match nav items */
+  .nova-header-search :global(button),
+  .nova-header-search :global([data-pagefind-ui] input),
+  .nova-header-search :global(input) {
+    color: var(--sl-color-gray-3) !important;
+    background: transparent !important;
+    border: 1px solid var(--sl-color-gray-4) !important;
+    border-radius: 6px !important;
+  }
+
+  .nova-header-search :global(button:hover),
+  .nova-header-search :global(input:hover) {
+    color: var(--sl-color-white) !important;
+    border-color: var(--sl-color-gray-3) !important;
+  }
+
+  .nova-header-search :global(button:focus),
+  .nova-header-search :global(input:focus) {
+    color: var(--sl-color-white) !important;
+    border-color: var(--sl-color-accent) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px var(--sl-color-accent-low) !important;
+  }
+
+  .nova-header-search :global(button svg),
+  .nova-header-search :global(.search-icon) {
+    color: var(--sl-color-gray-3) !important;
+  }
+
+  .nova-header-search :global(button:hover svg) {
+    color: var(--sl-color-white) !important;
+  }
+
+  /* Search placeholder text */
+  .nova-header-search :global(input::placeholder) {
+    color: var(--sl-color-gray-3) !important;
+  }
+
+  .nova-header-search :global(kbd) {
+    color: var(--sl-color-gray-3) !important;
+    background: var(--sl-color-bg-nav) !important;
+    border-color: var(--sl-color-gray-4) !important;
+  }
+</style>
+
+<script>
+  // Keyboard navigation support
+  document.querySelectorAll('.dropdown-trigger').forEach(trigger => {
+    trigger.addEventListener('click', (e) => {
+      const dropdown = (e.currentTarget as HTMLElement).closest('.nav-dropdown');
+      const menu = dropdown?.querySelector('.dropdown-menu');
+      if (menu) {
+        const isVisible = menu.style.visibility === 'visible';
+        menu.style.visibility = isVisible ? 'hidden' : 'visible';
+        menu.style.opacity = isVisible ? '0' : '1';
+      }
+    });
+  });
+
+  // Close on escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        (menu as HTMLElement).style.visibility = 'hidden';
+        (menu as HTMLElement).style.opacity = '0';
+      });
+    }
+  });
+</script>

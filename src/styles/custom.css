@@ -1,57 +1,488 @@
 /* Import component styles */
 @import './components/header-navigation.css';
 
-/* Custom Theme Variables */
+/* ScaleNinja Theme - Razer Green Accent */
 :root {
     --sl-content-width: 60rem;
 
-    /* Brand Colors - Customize these to match your brand */
-    --sl-color-accent-low: #44d62c;
+    /* Light Theme - Gray Scale */
+    --sl-color-white: #1f2328;      /* Primary text (dark) */
+    --sl-color-gray-1: #656d76;     /* Secondary text */
+    --sl-color-gray-2: #818b98;     /* Muted text */
+    --sl-color-gray-3: #8c959f;     /* Placeholder text */
+    --sl-color-gray-4: #d0d7de;     /* Borders */
+    --sl-color-gray-5: #d8dee4;     /* Light borders */
+    --sl-color-gray-6: #f6f8fa;     /* Secondary background */
+    --sl-color-gray-7: #ffffff;     /* Primary background */
+    --sl-color-black: #ffffff;      /* Page background */
+
+    /* Razer Green Accent */
+    --sl-color-accent-low: #d4f7d0;
     --sl-color-accent: #44d62c;
-    --sl-color-accent-high: #24292e;
+    --sl-color-accent-high: #2fb31b;
+
+    /* Semantic Colors */
+    --sl-hue-orange: 39;
+    --sl-color-orange-low: #fff8c5;
+    --sl-color-orange: #9a6700;
+    --sl-color-orange-high: #7d4e00;
+
+    --sl-hue-green: 110;
+    --sl-color-green-low: #d4f7d0;
+    --sl-color-green: #44d62c;
+    --sl-color-green-high: #2fb31b;
+
+    --sl-hue-blue: 212;
+    --sl-color-blue-low: #ddf4ff;
+    --sl-color-blue: #0969da;
+    --sl-color-blue-high: #0550ae;
+
+    --sl-hue-purple: 271;
+    --sl-color-purple-low: #fbefff;
+    --sl-color-purple: #8250df;
+    --sl-color-purple-high: #6639ba;
+
+    --sl-hue-red: 356;
+    --sl-color-red-low: #ffebe9;
+    --sl-color-red: #cf222e;
+    --sl-color-red-high: #a40e26;
+
+    /* Semantic mappings */
+    --sl-color-text: #1f2328;
+    --sl-color-text-accent: #2fb31b;
+    --sl-color-text-invert: #ffffff;
+    --sl-color-bg: #ffffff;
+    --sl-color-bg-nav: #f6f8fa;
+    --sl-color-bg-sidebar: #ffffff;
+    --sl-color-bg-inline-code: #eff1f3;
+    --sl-color-bg-accent: #44d62c;
+    --sl-color-hairline-light: #d8dee4;
+    --sl-color-hairline: #d0d7de;
+    --sl-color-hairline-shade: #d0d7de;
+
+    /* Shadows */
+    --sl-shadow-sm: 0 1px 0 rgba(31, 35, 40, 0.04);
+    --sl-shadow-md: 0 3px 6px rgba(140, 149, 159, 0.15);
+    --sl-shadow-lg: 0 8px 24px rgba(140, 149, 159, 0.2);
+
+    /* Custom variables for buttons and components */
+    --custom-border-radius: 6px;
+    --custom-transition-base: 0.2s ease;
 }
 
-/* Dark theme adjustments */
+/* Header dropdown fix - prevent clipping */
+header {
+    overflow: visible !important;
+}
+
+header > * {
+    overflow: visible !important;
+}
+
+/* Dark theme - Razer Green Accent */
 :root[data-theme='dark'] {
-    --sl-color-accent-low: #333;
+    /* Dark Gray Scale */
+    --sl-color-white: #f0f6fc;      /* Primary text */
+    --sl-color-gray-1: #c9d1d9;     /* Secondary text */
+    --sl-color-gray-2: #8b949e;     /* Muted text */
+    --sl-color-gray-3: #6e7681;     /* Placeholder text */
+    --sl-color-gray-4: #30363d;     /* Borders */
+    --sl-color-gray-5: #21262d;     /* Light borders */
+    --sl-color-gray-6: #161b22;     /* Secondary background */
+    --sl-color-gray-7: #0d1117;     /* Primary background */
+    --sl-color-black: #0d1117;      /* Page background */
+
+    /* Razer Green Accent - Dark */
+    --sl-color-accent-low: #1a3d1a;
     --sl-color-accent: #44d62c;
-    --sl-color-accent-high: #66ff00;
+    --sl-color-accent-high: #66ff4d;
+
+    /* Semantic Colors - Dark Style */
+    --sl-color-orange-low: #4b2900;
+    --sl-color-orange: #d29922;
+    --sl-color-orange-high: #e3b341;
+
+    --sl-color-green-low: #1a3d1a;
+    --sl-color-green: #44d62c;
+    --sl-color-green-high: #66ff4d;
+
+    --sl-color-blue-low: #1f3a5f;
+    --sl-color-blue: #58a6ff;
+    --sl-color-blue-high: #79c0ff;
+
+    --sl-color-purple-low: #2d1f4e;
+    --sl-color-purple: #a371f7;
+    --sl-color-purple-high: #bc8cff;
+
+    --sl-color-red-low: #490202;
+    --sl-color-red: #f85149;
+    --sl-color-red-high: #ff7b72;
+
+    /* Semantic mappings */
+    --sl-color-text: #c9d1d9;
+    --sl-color-text-accent: #44d62c;
+    --sl-color-text-invert: #0d1117;
+    --sl-color-bg: #0d1117;
+    --sl-color-bg-nav: #161b22;
+    --sl-color-bg-sidebar: #0d1117;
+    --sl-color-bg-inline-code: #1f2428;
+    --sl-color-bg-accent: #44d62c;
+    --sl-color-hairline-light: #21262d;
+    --sl-color-hairline: #30363d;
+    --sl-color-hairline-shade: #21262d;
+
+    /* Shadows - Dark style */
+    --sl-shadow-sm: 0 0 transparent;
+    --sl-shadow-md: 0 3px 6px rgba(0, 0, 0, 0.4);
+    --sl-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
-/* nova-link-button styles */
+/* nova-link-button styles - Razer green */
 .nova-link-button {
-    padding: 0.75rem 1.5rem;
+    padding: 0.625rem 1rem;
     border-radius: var(--custom-border-radius);
-    font-weight: 600;
+    font-weight: 500;
+    font-size: 0.875rem;
     text-decoration: none;
-    transition: all var(--custom-transition-base);
+    transition: background-color var(--custom-transition-base), border-color var(--custom-transition-base);
     cursor: pointer;
 }
 
 .nova-link-button-primary {
-    background: var(--sl-color-accent);
-    color: var(--sl-color-black);
+    background: #44d62c;
+    color: #000000;
+    border: 1px solid rgba(31, 35, 40, 0.15);
 }
 
 .nova-link-button-primary:hover {
-    background: var(--sl-color-accent-high);
-    transform: translateY(-2px);
-    box-shadow: var(--custom-shadow-md);
+    background: #3bc224;
+}
+
+:root[data-theme='dark'] .nova-link-button-primary {
+    background: #44d62c;
+    color: #000000;
+    border-color: rgba(68, 214, 44, 0.3);
+}
+
+:root[data-theme='dark'] .nova-link-button-primary:hover {
+    background: #66ff4d;
 }
 
 .nova-link-button-secondary {
-    background: transparent;
-    color: var(--sl-color-white);
-    border: 1px solid var(--sl-color-gray-5);
+    background: #f6f8fa;
+    color: #24292f;
+    border: 1px solid #d0d7de;
 }
 
 .nova-link-button-secondary:hover {
-    border-color: var(--sl-color-accent);
+    background: #f3f4f6;
+    border-color: #44d62c;
+}
+
+:root[data-theme='dark'] .nova-link-button-secondary {
+    background: #21262d;
+    color: #c9d1d9;
+    border-color: #30363d;
+}
+
+:root[data-theme='dark'] .nova-link-button-secondary:hover {
+    background: #30363d;
+    border-color: #44d62c;
+}
+
+/* Selection color - Razer green */
+::selection {
+    background: #d4f7d0;
+    color: #1f2328;
+}
+
+:root[data-theme='dark'] ::selection {
+    background: #1a3d1a;
+    color: #66ff4d;
+}
+
+/* Links */
+a:not([class]) {
+    color: var(--sl-color-text-accent);
+}
+
+a:not([class]):hover {
+    text-decoration: underline;
+}
+
+/* Search button in navbar - match nav item colors */
+site-search button,
+.search-trigger,
+button[data-open-modal] {
+    color: var(--sl-color-gray-3) !important;
+    border-color: var(--sl-color-gray-4) !important;
+}
+
+site-search button:hover,
+.search-trigger:hover,
+button[data-open-modal]:hover {
+    color: var(--sl-color-white) !important;
+    border-color: var(--sl-color-gray-3) !important;
+}
+
+site-search button svg,
+.search-trigger svg,
+button[data-open-modal] svg {
+    color: inherit !important;
+}
+
+site-search kbd {
+    color: var(--sl-color-gray-3) !important;
+    border-color: var(--sl-color-gray-4) !important;
+}
+
+/* Code blocks - GitHub style */
+pre {
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: var(--custom-border-radius);
+}
+
+code {
+    border-radius: var(--custom-border-radius);
+}
+
+/* Inline code - GitHub style */
+:not(pre) > code {
+    background: var(--sl-color-bg-inline-code);
+    padding: 0.2em 0.4em;
+    font-size: 85%;
+    border-radius: var(--custom-border-radius);
+}
+
+/* Blockquotes - GitHub style */
+blockquote {
+    border-left: 0.25em solid var(--sl-color-hairline);
+    color: var(--sl-color-gray-2);
+    padding-left: 1em;
+}
+
+/* Tables - GitHub style */
+table {
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid var(--sl-color-hairline);
+    padding: 0.5rem 1rem;
+}
+
+th {
     background: var(--sl-color-bg-nav);
 }
 
-/* Selection color */
-::selection {
+/* Horizontal rules - GitHub style */
+hr {
+    border: none;
+    border-top: 1px solid var(--sl-color-hairline);
+}
+
+/* Hero image - adapt to theme */
+.hero img {
+    color: #ffffff;  /* Light theme background color for SVG currentColor */
+}
+
+:root[data-theme='dark'] .hero img {
+    color: #0d1117;  /* Dark theme background color for SVG currentColor */
+}
+
+/* Code syntax highlighting - GitHub Light */
+:root {
+    --astro-code-color-text: #24292f;
+    --astro-code-color-background: #f6f8fa;
+    --astro-code-token-constant: #0550ae;
+    --astro-code-token-string: #0a3069;
+    --astro-code-token-comment: #6e7781;
+    --astro-code-token-keyword: #cf222e;
+    --astro-code-token-parameter: #953800;
+    --astro-code-token-function: #8250df;
+    --astro-code-token-string-expression: #0a3069;
+    --astro-code-token-punctuation: #24292f;
+    --astro-code-token-link: #0969da;
+}
+
+/* Code syntax highlighting - GitHub Dark */
+:root[data-theme='dark'] {
+    --astro-code-color-text: #e6edf3;
+    --astro-code-color-background: #161b22;
+    --astro-code-token-constant: #79c0ff;
+    --astro-code-token-string: #a5d6ff;
+    --astro-code-token-comment: #8b949e;
+    --astro-code-token-keyword: #ff7b72;
+    --astro-code-token-parameter: #ffa657;
+    --astro-code-token-function: #d2a8ff;
+    --astro-code-token-string-expression: #a5d6ff;
+    --astro-code-token-punctuation: #e6edf3;
+    --astro-code-token-link: #58a6ff;
+}
+
+/* Dark mode code blocks */
+:root[data-theme='dark'] pre {
+    background: #161b22;
+}
+
+:root[data-theme='dark'] :not(pre) > code {
+    background: #343942;
+}
+
+/* Dark mode blockquotes */
+:root[data-theme='dark'] blockquote {
+    border-left-color: #3b434b;
+    color: #8b949e;
+}
+
+/* Dark mode tables */
+:root[data-theme='dark'] th {
+    background: #161b22;
+}
+
+/* Sidebar styles - GitHub */
+.sidebar-content {
+    background: var(--sl-color-bg-sidebar);
+}
+
+/* Search input - GitHub style */
+input[type="search"],
+input[type="text"] {
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: var(--custom-border-radius);
+    color: var(--sl-color-text);
+}
+
+input[type="search"]:focus,
+input[type="text"]:focus {
+    border-color: var(--sl-color-accent);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--sl-color-accent-low);
+}
+
+/* Scrollbar - GitHub style */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--sl-color-gray-4);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--sl-color-gray-3);
+}
+
+/* Dark mode scrollbar */
+:root[data-theme='dark'] ::-webkit-scrollbar-thumb {
+    background: #484f58;
+}
+
+:root[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+    background: #6e7681;
+}
+
+/* Nova theme dark mode overrides - GitHub Dark style */
+.dark .nova-code-copy-button,
+:root[data-theme='dark'] .nova-code-copy-button {
+    background-color: #21262d;
+    color: #c9d1d9;
+}
+
+.dark .nova-code-copy-button:hover,
+:root[data-theme='dark'] .nova-code-copy-button:hover {
+    background-color: #30363d;
+}
+
+.dark .nova-link-button-primary,
+:root[data-theme='dark'] .nova-link-button-primary {
+    background-color: #238636;
+    color: #ffffff;
+    border-color: rgba(240, 246, 252, 0.1);
+}
+
+.dark .nova-link-button-primary:hover,
+:root[data-theme='dark'] .nova-link-button-primary:hover {
+    background-color: #2ea043;
+}
+
+.dark .nova-link-button-secondary,
+:root[data-theme='dark'] .nova-link-button-secondary {
+    background-color: #21262d;
+    color: #c9d1d9;
+    border-color: #30363d;
+}
+
+.dark .nova-link-button-secondary:hover,
+:root[data-theme='dark'] .nova-link-button-secondary:hover {
+    background-color: #30363d;
+    border-color: #8b949e;
+}
+
+.dark .nova-link-card,
+:root[data-theme='dark'] .nova-link-card {
+    background-color: #161b22;
+    border-color: #30363d;
+    color: #c9d1d9;
+}
+
+.dark .nova-link-card:hover,
+:root[data-theme='dark'] .nova-link-card:hover {
+    background-color: #21262d;
+    border-color: #8b949e;
+}
+
+.dark .nova-link-button-minimal,
+:root[data-theme='dark'] .nova-link-button-minimal,
+.dark .nova-link-card-link,
+:root[data-theme='dark'] .nova-link-card-link {
+    color: #58a6ff;
+}
+
+/* Nova header dark mode - GitHub style */
+.dark .nova-header,
+:root[data-theme='dark'] .nova-header {
+    background-color: #161b22;
+    border-color: #30363d;
+}
+
+/* Nova sidebar dark mode */
+.dark .nova-sidebar,
+:root[data-theme='dark'] .nova-sidebar {
+    background-color: #0d1117;
+}
+
+/* Shiki code highlighting - GitHub Dark */
+html[data-theme='dark'] .astro-code,
+html[data-theme='dark'] .astro-code span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+}
+
+/* Blog Cards - Dark Mode Enhancements */
+:root[data-theme='dark'] .blog-card {
+    background: var(--sl-color-gray-6);
+    border-color: var(--sl-color-gray-4);
+}
+
+:root[data-theme='dark'] .blog-card:hover {
+    background: var(--sl-color-gray-5);
+    border-color: var(--sl-color-accent);
+}
+
+:root[data-theme='dark'] .blog-card-tag {
+    background: var(--sl-color-gray-4);
+    color: var(--sl-color-gray-1);
+}
+
+:root[data-theme='dark'] .blog-card-featured {
     background: var(--sl-color-accent);
-    color: var(--sl-color-black);
+    color: #000000;
 }

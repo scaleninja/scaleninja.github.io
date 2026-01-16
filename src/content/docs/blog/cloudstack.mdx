@@ -1,30 +1,20 @@
 ---
 title: Apache CloudStack Ubuntu/KVM Guide for x86_64 and ARM64
 description: The Apache CloudStack IaaS Cloud Install & Build Guide for Ubuntu/KVM x86_64 and ARM64
-sidebar:
-  order: 1
-  badge: Popular
+date: 2026-01-04
+featured: true
+authors: ["rohit"]
+tags: ["guide", "cloudstack"]
+cover:
+  image: ./cloudstack/rpi.jpg
+  alt: CloudStack RPi
 ---
 
 import { LinkButton } from '@astrojs/starlight/components';
 import { Badge } from '@astrojs/starlight/components';
 import { Tabs, TabItem } from '@astrojs/starlight/components';
-import loginImg from 'cloudstack/login.png';
-import addZoneImg from 'cloudstack/addzone.png';
-import rpiImg from 'cloudstack/rpi.jpg';
-import rohitImg from '../../../assets/rohit.png';
-
-<div style="display: flex; align-items: center; justify-content: space-between">
-  <div style="display: flex; align-items: center; gap: 12px;">
-    <img src={rohitImg.src} alt="Rohit Yadav" style="width: 48px; height: 48px; border-radius: 50%" />
-    <div style="font-weight: 500; font-size: 16px; margin-top: 0px">
-      <a href="https://yadv.in" target="_blank" style="text-decoration: unset">
-        Rohit Yadav
-      </a>
-    </div>
-  </div>
-  <div style="color: #888; font-size: 16px; margin-top: 0px">4 Jan 2026</div>
-</div>
+import loginImg from './cloudstack/login.png';
+import addZoneImg from './cloudstack/addzone.png';
 
 :::caution[Note]
 This guide was updated for `Apache CloudStack v4.22` and tested on x86_64 and ARM64 hosts such
@@ -36,8 +26,6 @@ guide](http://docs.cloudstack.apache.org/en/latest/installguide) and
 [docs on KVM host installation](http://docs.cloudstack.apache.org/en/latest/installguide/hypervisor/kvm.html).
 :::
 
-<img src={rpiImg.src} width="100%" alt="CloudStack and RPi Board" />
-
 This guide covers the installation and build of Apache CloudStack IaaS cloud on
 Ubuntu using KVM, for both x86_64 and ARM64 architectures.
 
@@ -45,6 +33,8 @@ If you're new to Apache CloudStack, here a video for you:
 [CloudStack 101: The Best Way to Build Your Private Cloud](https://www.youtube.com/watch?v=pASzZR57V_8)
 
 <iframe width="100%" height="480" src="https://www.youtube.com/embed/pASzZR57V_8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+{/* excerpt */}
 
 :::tip
 Users new to Apache CloudStack can also try the new console-based one-line installer: https://github.com/apache/cloudstack-installer
@@ -88,23 +78,23 @@ Ensure that the `universe` repository is enabled in `/etc/apt/sources.list`.
 Install basic packages:
 
 ```sh
-    apt-get install openntpd openssh-server sudo vim htop tar
+apt-get install openntpd openssh-server sudo vim htop tar
 ```
 
 Ensure that KVM is available at `/dev/kvm` or by running kvm-ok:
 
 ```sh
-    apt-get install cpu-checker
+apt-get install cpu-checker
 
-    #kvm-ok
-    INFO: /dev/kvm exists
-    KVM acceleration can be used
+kvm-ok
+INFO: /dev/kvm exists
+KVM acceleration can be used
 ```
 
 Optional: Intel based systems may benefit from CPU microcode install/update:
 
 ```sh
-    apt-get install intel-microcode
+apt-get install intel-microcode
 ```
 
 Allow the root user for ssh access using password, fix `/etc/ssh/sshd_config` to
@@ -113,7 +103,7 @@ set `PermitRootLogin yes` and restart ssh using `systemctl restart ssh`.
 Change and remember the `root` password:
 
 ```sh
-    passwd root
+passwd root
 ```
 
 ## Network Setup
@@ -125,7 +115,7 @@ public, guest, management and storage traffic. For simplicity, a single bridge
 bridge utilities using:
 
 ```sh
-    apt-get install bridge-utils
+apt-get install bridge-utils
 ```
 
 This guide assumes that you're in a 192.168.1.0/24 network which is a typical
@@ -188,8 +178,8 @@ bytes). For example, see below:
 
 Apply network config and reboot/re-ssh:
 ```sh
-    netplan generate
-    netplan apply
+netplan generate
+netplan apply
 ```
 
 ## Repo Setup
@@ -197,11 +187,11 @@ Apply network config and reboot/re-ssh:
 Setup the repository on your Ubuntu host:
 
 ```sh
-    mkdir -p /etc/apt/keyrings
-    wget -O- http://packages.shapeblue.com/release.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/cloudstack.gpg > /dev/null
+mkdir -p /etc/apt/keyrings
+wget -O- http://packages.shapeblue.com/release.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/cloudstack.gpg > /dev/null
 
-    echo deb [signed-by=/etc/apt/keyrings/cloudstack.gpg] http://packages.shapeblue.com/cloudstack/upstream/debian/4.22 / > /etc/apt/sources.list.d/cloudstack.list
-    apt-get update -y
+echo deb [signed-by=/etc/apt/keyrings/cloudstack.gpg] http://packages.shapeblue.com/cloudstack/upstream/debian/4.22 / > /etc/apt/sources.list.d/cloudstack.list
+apt-get update -y
 ```
 
 This should be run on all hosts where CloudStack software packages (management
@@ -212,14 +202,14 @@ server, usage server, agent etc) needs to be installed, esp if you've multiple h
 Install CloudStack management server and MySQL server: (run as root, once the CloudStack repository is setup)
 
 ```sh
-    apt-get update -y
-    apt-get install cloudstack-management mysql-server
+apt-get update -y
+apt-get install cloudstack-management mysql-server
 ```
 
 Optionally, if you want usage server you can run:
 
 ```sh
-    apt-get install cloudstack-usage
+apt-get install cloudstack-usage
 ```
 
 ## Database Setup
@@ -228,24 +218,24 @@ Make a note of the MySQL server's root user password. Configure InnoDB settings
 in mysql server's `/etc/mysql/mysql.conf.d/mysqld.cnf`:
 
 ```sql
-    [mysqld]
+[mysqld]
 
-    server_id = 1
-    sql-mode="STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION,ERROR_FOR_DIVISION_BY_ZERO,NO_ZERO_DATE,NO_ZERO_IN_DATE,NO_ENGINE_SUBSTITUTION"
-    innodb_rollback_on_timeout=1
-    innodb_lock_wait_timeout=600
-    max_connections=1000
-    log-bin=mysql-bin
-    binlog-format = 'ROW'
+server_id = 1
+sql-mode="STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION,ERROR_FOR_DIVISION_BY_ZERO,NO_ZERO_DATE,NO_ZERO_IN_DATE,NO_ENGINE_SUBSTITUTION"
+innodb_rollback_on_timeout=1
+innodb_lock_wait_timeout=600
+max_connections=1000
+log-bin=mysql-bin
+binlog-format = 'ROW'
 
-    #default-authentication-plugin=mysql_native_password
+#default-authentication-plugin=mysql_native_password
 ```
 
 Restart MySQL server and setup database:
 
 ```sh
-    systemctl restart mysql
-    cloudstack-setup-databases cloud:cloud@localhost --deploy-as=root: -i 192.168.1.10
+systemctl restart mysql
+cloudstack-setup-databases cloud:cloud@localhost --deploy-as=root: -i 192.168.1.10
 ```
 
 :::note
@@ -257,15 +247,15 @@ Note the `-i` flag in the `cloudstack-setup-databases` command to override the I
 Install NFS server:
 
 ```sh
-    apt-get install nfs-kernel-server quota
+apt-get install nfs-kernel-server quota
 ```
 
 Create exports:
 
 ```sh
-    echo "/export  *(rw,async,no_root_squash,no_subtree_check)" > /etc/exports
-    mkdir -p /export/primary /export/secondary
-    exportfs -a
+echo "/export  *(rw,async,no_root_squash,no_subtree_check)" > /etc/exports
+mkdir -p /export/primary /export/secondary
+exportfs -a
 ```
 
 :::tip
@@ -275,11 +265,11 @@ The `/export` may even be a different disk or external storage, in which case yo
 Configure and restart NFS server:
 
 ```sh
-    sed -i -e 's/^RPCMOUNTDOPTS="--manage-gids"$/RPCMOUNTDOPTS="-p 892 --manage-gids"/g' /etc/default/nfs-kernel-server
-    sed -i -e 's/^STATDOPTS=$/STATDOPTS="--port 662 --outgoing-port 2020"/g' /etc/default/nfs-common
-    echo "NEED_STATD=yes" >> /etc/default/nfs-common
-    sed -i -e 's/^RPCRQUOTADOPTS=$/RPCRQUOTADOPTS="-p 875"/g' /etc/default/quota
-    service nfs-kernel-server restart
+sed -i -e 's/^RPCMOUNTDOPTS="--manage-gids"$/RPCMOUNTDOPTS="-p 892 --manage-gids"/g' /etc/default/nfs-kernel-server
+sed -i -e 's/^STATDOPTS=$/STATDOPTS="--port 662 --outgoing-port 2020"/g' /etc/default/nfs-common
+echo "NEED_STATD=yes" >> /etc/default/nfs-common
+sed -i -e 's/^RPCRQUOTADOPTS=$/RPCRQUOTADOPTS="-p 875"/g' /etc/default/quota
+service nfs-kernel-server restart
 ```
 
 :::caution
@@ -305,46 +295,45 @@ Configure the [CloudStack repo](#repo-setup) on your KVM host if it's not the ma
 Install KVM and CloudStack agent, configure libvirt:
 
 ```sh
-    apt-get install qemu-kvm cloudstack-agent
+apt-get install qemu-kvm cloudstack-agent
 ```
-
 
 Enable VNC for console proxy:
 
 ```sh
-    sed -i -e 's/\#vnc_listen.*$/vnc_listen = "0.0.0.0"/g' /etc/libvirt/qemu.conf
+sed -i -e 's/\#vnc_listen.*$/vnc_listen = "0.0.0.0"/g' /etc/libvirt/qemu.conf
 ```
 
 On Ubuntu 22.04/24.04 or later, add `LIBVIRTD_ARGS="--listen"` to `/etc/default/libvirtd`:
 
 ```sh
-    echo LIBVIRTD_ARGS=\"--listen\" >> /etc/default/libvirtd
+echo LIBVIRTD_ARGS=\"--listen\" >> /etc/default/libvirtd
 ```
 
 The traditional socket/listen based configuration may not be supported with
 CloudStack, we can get the old behaviour using following:
 
 ```sh
-    systemctl mask libvirtd.socket libvirtd-ro.socket libvirtd-admin.socket libvirtd-tls.socket libvirtd-tcp.socket
-    systemctl restart libvirtd
+systemctl mask libvirtd.socket libvirtd-ro.socket libvirtd-admin.socket libvirtd-tls.socket libvirtd-tcp.socket
+systemctl restart libvirtd
 ```
 
 Configure libvirt to connect to libvirtd and not to per-driver daemons, especially important on newer distros
 such as Ubuntu 24.04 (and EL9) by editing the ``/etc/libvirt/libvirt.conf`` and adding the following:
 
 ```astro title="/etc/libvirt/libvirt.conf" {1}
-      remote_mode="legacy"
+remote_mode="legacy"
 ```
 
 Configure default libvirtd config:
 
 ```sh
-    echo 'listen_tls=0' >> /etc/libvirt/libvirtd.conf
-    echo 'listen_tcp=1' >> /etc/libvirt/libvirtd.conf
-    echo 'tcp_port = "16509"' >> /etc/libvirt/libvirtd.conf
-    echo 'mdns_adv = 0' >> /etc/libvirt/libvirtd.conf
-    echo 'auth_tcp = "none"' >> /etc/libvirt/libvirtd.conf
-    systemctl restart libvirtd
+echo 'listen_tls=0' >> /etc/libvirt/libvirtd.conf
+echo 'listen_tcp=1' >> /etc/libvirt/libvirtd.conf
+echo 'tcp_port = "16509"' >> /etc/libvirt/libvirtd.conf
+echo 'mdns_adv = 0' >> /etc/libvirt/libvirtd.conf
+echo 'auth_tcp = "none"' >> /etc/libvirt/libvirtd.conf
+systemctl restart libvirtd
 ```
 
 :::note
@@ -379,12 +368,12 @@ On certain hosts where you may be running docker and other services, you may
 need to add the following in `/etc/sysctl.conf` and then run `sysctl -p`:
 
 ```astro title="/etc/sysctl.conf" {1,2}
-    net.bridge.bridge-nf-call-arptables = 0
-    net.bridge.bridge-nf-call-iptables = 0
+net.bridge.bridge-nf-call-arptables = 0
+net.bridge.bridge-nf-call-iptables = 0
 ```
 
 ```sh
-    sysctl -p
+sysctl -p
 ```
 :::
 
@@ -393,10 +382,10 @@ Optional: If you're using a non-compliant server vendor or virtual environment,
 in some cases you may need to configure unique host ID for libvirt:
 
 ```sh
-    apt-get install uuid
-    UUID=$(uuid)
-    echo host_uuid = \"$UUID\" >> /etc/libvirt/libvirtd.conf
-    systemctl restart libvirtd
+apt-get install uuid
+UUID=$(uuid)
+echo host_uuid = \"$UUID\" >> /etc/libvirt/libvirtd.conf
+systemctl restart libvirtd
 ```
 :::
 
@@ -440,11 +429,11 @@ management network:
 You must check and disable apparmour:
 
 ```sh
-    # Disable apparmour on libvirtd
-    ln -s /etc/apparmor.d/usr.sbin.libvirtd /etc/apparmor.d/disable/
-    ln -s /etc/apparmor.d/usr.lib.libvirt.virt-aa-helper /etc/apparmor.d/disable/
-    apparmor_parser -R /etc/apparmor.d/usr.sbin.libvirtd
-    apparmor_parser -R /etc/apparmor.d/usr.lib.libvirt.virt-aa-helper
+# Disable apparmour on libvirtd
+ln -s /etc/apparmor.d/usr.sbin.libvirtd /etc/apparmor.d/disable/
+ln -s /etc/apparmor.d/usr.lib.libvirt.virt-aa-helper /etc/apparmor.d/disable/
+apparmor_parser -R /etc/apparmor.d/usr.sbin.libvirtd
+apparmor_parser -R /etc/apparmor.d/usr.lib.libvirt.virt-aa-helper
 ```
 
 ## Start Control Plane
@@ -453,9 +442,9 @@ Start your cloud management control plane by setting up the CloudStack
 management server:
 
 ```sh
-    cloudstack-setup-management
-    systemctl status cloudstack-management
-    tail -f /var/log/cloudstack/management/management-server.log
+cloudstack-setup-management
+systemctl status cloudstack-management
+tail -f /var/log/cloudstack/management/management-server.log
 ```
 
 After the CloudStack management server is up, log into the management server using the default
