@@ -290,6 +290,24 @@ hr {
     color: #0d1117;  /* Dark theme background color for SVG currentColor */
 }
 
+/* Hero image - make it bigger */
+.hero > img,
+.hero > .hero-html {
+    width: min(90%, 28rem) !important;
+}
+
+@media (min-width: 50rem) {
+    .hero {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 4% !important;
+    }
+
+    .hero > img,
+    .hero > .hero-html {
+        width: min(100%, 38rem) !important;
+    }
+}
+
 /* Code syntax highlighting - GitHub Light */
 :root {
     --astro-code-color-text: #24292f;

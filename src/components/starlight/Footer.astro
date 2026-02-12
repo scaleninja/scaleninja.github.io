@@ -8,10 +8,8 @@ import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
         <div class="footer-main">
             <!-- Logo and tagline -->
             <div class="footer-brand">
-                <a href="/" class="footer-logo">
-                    <SiteTitle />
-                </a>
-                <p class="footer-tagline">Building apps to infrastructure</p>
+                <SiteTitle />
+                <p class="footer-tagline">The OnPrem Company</p>
                 <!-- Social icons -->
                 <div class="footer-social">
                     <a href="mailto:hi@scaleninja.com" aria-label="Email">
@@ -50,46 +48,36 @@ import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
                         </svg>
                     </a>
                 </div>
+
+                <div class="footer-section footer-subscribe">
+                    <p class="subscribe-text">Get notified on new updates and blog posts.</p>
+                    <form id="subscribe-form" class="subscribe-form">
+                        <input type="email" name="entry.1769037418" placeholder="you@email.com" required aria-label="Email address" />
+                        <button type="submit">Subscribe</button>
+                    </form>
+                    <p id="subscribe-status" class="subscribe-status"></p>
+                </div>
             </div>
 
             <!-- Footer links sections -->
             <div class="footer-links">
                 <div class="footer-section">
-                    <h4>What We do</h4>
+                    <h4>Resources</h4>
                     <ul>
-                        <li><a href="/solutions">Solutions</a></li>
-                        <li><a href="/products">Products</a></li>
-                        <li><a href="/resources">Resources</a></li>
+                        <li><a href="/blog">Blog</a></li>
                     </ul>
                 </div>
-
-                <div class="footer-section">
-                    <h4>Developers</h4>
-                    <ul>
-                        <li><a href="/guides/getting-started">Quick Start</a></li>
-                        <li><a href="/guides/installation">Installation</a></li>
-                        <li><a href="/reference/api">API Reference</a></li>
-                        <li><a href="/reference/configuration">Configuration</a></li>
-                    </ul>
-                </div>
-
                 <div class="footer-section">
                     <h4>Support</h4>
                     <ul>
-                        <li><a href="/guides/getting-started">Documentation</a></li>
-                        <li><a href="https://github.com/yourusername/yourproject/discussions" target="_blank" rel="noopener">Community Forum</a></li>
-                        <li><a href="https://github.com/yourusername/yourproject/issues" target="_blank" rel="noopener">Report Issues</a></li>
-                        <li><a href="/support">Contact Support</a></li>
+                        <li><a href="https://github.com/scaleninja/scaleninja" target="_blank" rel="noopener">Issues</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-section">
                     <h4>Company</h4>
                     <ul>
-                        <li><a href="/about">About Us</a></li>
-                        <li><a href="/blog">Blog</a></li>
-                        <li><a href="/careers">Careers</a></li>
-                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/contact">Contact Us</a></li>
                     </ul>
                 </div>
             </div>
@@ -98,18 +86,57 @@ import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
         <!-- Footer bottom -->
         <div class="footer-bottom">
             <div class="footer-bottom-left">
-                <p>&copy; 2014-{new Date().getFullYear()} ScaleNinja. All rights reserved.</p>
+                <p>&copy; 2014-{new Date().getFullYear()} ScaleNinja Software LLP.
+                All rights reserved.</p>
             </div>
             <div class="footer-bottom-right">
                 <a href="/privacy">Privacy Policy</a>
                 <span class="separator">•</span>
                 <a href="/terms">Terms of Service</a>
-                <span class="separator">•</span>
-                <a href="/cookies">Cookie Policy</a>
             </div>
         </div>
+        <p class="footer-brewed"></p>
     </div>
 </footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var form = document.getElementById('subscribe-form');
+        var status = document.getElementById('subscribe-status');
+        if (!form || !status) return;
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!form.checkValidity()) { form.reportValidity(); return; }
+
+            var btn = form.querySelector('button');
+            btn.disabled = true;
+            btn.textContent = '...';
+            status.className = 'subscribe-status';
+            status.textContent = '';
+
+            var data = new FormData(form);
+            fetch('https://docs.google.com/forms/d/e/1FAIpQLSdmypu25LKFRnerbdorlPk60dvwwFen7YFB2le05cdxkdZvzQ/formResponse', {
+                method: 'POST',
+                body: data,
+                mode: 'no-cors',
+            })
+            .then(function () {
+                status.className = 'subscribe-status success';
+                status.textContent = "You're subscribed!";
+                form.reset();
+            })
+            .catch(function () {
+                status.className = 'subscribe-status error';
+                status.textContent = 'Something went wrong.';
+            })
+            .finally(function () {
+                btn.disabled = false;
+                btn.textContent = 'Subscribe';
+            });
+        });
+    });
+</script>
 
 <style>
     .custom-footer {
@@ -201,7 +228,7 @@ import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
     /* Links sections */
     .footer-links {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 2rem;
     }
 
@@ -237,6 +264,74 @@ import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
 
     .footer-section a:hover {
         color: var(--sl-color-accent);
+    }
+
+    /* Subscribe section */
+    .subscribe-text {
+        margin: 0 0 0.75rem;
+        color: var(--sl-color-gray-2);
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    .subscribe-form {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .subscribe-form input {
+        flex: 1;
+        min-width: 0;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--sl-color-gray-4);
+        border-radius: 6px;
+        background: var(--sl-color-bg);
+        color: var(--sl-color-white);
+        font-family: inherit;
+        font-size: 0.875rem;
+    }
+
+    .subscribe-form input:focus {
+        outline: none;
+        border-color: var(--sl-color-accent);
+        box-shadow: 0 0 0 2px rgba(68, 214, 44, 0.15);
+    }
+
+    .subscribe-form button {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        background: var(--sl-color-accent);
+        color: var(--sl-color-black);
+        font-family: inherit;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: opacity 0.15s ease;
+    }
+
+    .subscribe-form button:hover {
+        opacity: 0.85;
+    }
+
+    .subscribe-form button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .subscribe-status {
+        margin: 0.5rem 0 0;
+        font-size: 0.8125rem;
+        min-height: 1.25rem;
+    }
+
+    .subscribe-status.success {
+        color: #22c55e;
+    }
+
+    .subscribe-status.error {
+        color: #ef4444;
     }
 
     /* Footer bottom */
@@ -277,6 +372,12 @@ import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
         color: var(--sl-color-gray-5);
     }
 
+    .footer-brewed {
+        color: var(--sl-color-gray-3);
+        font-size: 0.875rem;
+        text-align: left;
+    }
+
     /* Responsive design */
     @media (max-width: 1024px) {
         .footer-main {
@@ -285,7 +386,7 @@ import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
         }
 
         .footer-links {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
         }
     }
 
@@ -295,7 +396,7 @@ import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
         }
 
         .footer-links {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 2rem;
         }
 

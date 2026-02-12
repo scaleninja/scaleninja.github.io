@@ -27,10 +27,8 @@ export default defineConfig({
                 }),
                 starlightThemeNova({
                     nav: [
-                        { label: 'Products', href: '/products/' },
-                        { label: 'Solutions', href: '/solutions/' },
-                        { label: 'Guides', href: '/guides/cloudstack/' },
                         { label: 'Blog', href: '/blog' },
+                        { label: 'Contact', href: '/contact' },
                     ],
                 }),
             ],
