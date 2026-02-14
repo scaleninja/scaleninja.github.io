@@ -154,14 +154,14 @@ import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
         display: grid;
         grid-template-columns: 1fr 2fr;
         gap: 4rem;
-        padding-bottom: 3rem;
+        padding-bottom: 1rem;
     }
 
     /* Brand section */
     .footer-brand {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 1rem;
     }
 
     .footer-logo {
@@ -266,8 +266,12 @@ import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
     }
 
     /* Subscribe section */
+    .footer-subscribe {
+        position: relative;
+    }
+
     .subscribe-text {
-        margin: 0 0 0.75rem;
+        margin: 0 0 0.5rem;
         color: var(--sl-color-gray-2);
         font-size: 0.875rem;
         line-height: 1.5;
@@ -320,9 +324,12 @@ import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
     }
 
     .subscribe-status {
-        margin: 0.5rem 0 0;
-        font-size: 0.8125rem;
-        min-height: 1.25rem;
+        position: absolute;
+        left: 0;
+        top: 100%;
+        margin: 0.25rem 0 0;
+        font-size: 0.75rem;
+        line-height: 1;
     }
 
     .subscribe-status.success {
@@ -338,7 +345,7 @@ import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding-top: 2rem;
+        padding-top: 1rem;
         border-top: 1px solid var(--sl-color-gray-6);
         gap: 2rem;
         flex-wrap: wrap;
@@ -375,13 +382,14 @@ import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro';
         color: var(--sl-color-gray-3);
         font-size: 0.875rem;
         text-align: left;
+        margin: 0;
     }
 
     /* Responsive design */
     @media (max-width: 1024px) {
         .footer-main {
             grid-template-columns: 1fr;
-            gap: 3rem;
+            gap: 2rem;
         }
 
         .footer-links {
