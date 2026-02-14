@@ -1,0 +1,634 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" fill="none">
+  <style>
+    .grid-ln { stroke: #c0c8d0; }
+    .txt { fill: #556; }
+    .bar-bg { fill: #d0d5db; }
+
+    @media (prefers-color-scheme: dark) {
+      .grid-ln { stroke: #1a2233; }
+      .txt { fill: #3a4555; }
+      .bar-bg { fill: #151c28; }
+    }
+
+    @keyframes rain { from { transform: translateY(-520px); } to { transform: translateY(520px); } }
+    @keyframes glow-pulse { 0%,100% { opacity: .5; } 50% { opacity: 1; } }
+    @keyframes glow-slow { 0%,100% { opacity: .3; } 50% { opacity: .8; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin-rev { to { transform: rotate(-360deg); } }
+    @keyframes dash-f { to { stroke-dashoffset: -40; } }
+    @keyframes dash-r { to { stroke-dashoffset: 40; } }
+    @keyframes flick { 0%,18%,22%,100% { opacity: 1; } 19% { opacity: .1; } 21% { opacity: .2; } }
+    @keyframes flick2 { 0%,48%,52%,100% { opacity: 1; } 49% { opacity: 0; } 51% { opacity: .3; } }
+    @keyframes flick3 { 0%,70%,74%,100% { opacity: .7; } 71% { opacity: 0; } 73% { opacity: .15; } }
+    @keyframes scan { 0% { transform: translateY(-260px); opacity: 0; } 10%,90% { opacity: 1; } 100% { transform: translateY(260px); opacity: 0; } }
+    @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    @keyframes bob2 { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    @keyframes appear { 0%,90%{ opacity: 0; } 95% { opacity: .8; } 100% { opacity: 0; } }
+    @keyframes energy { 0% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -80; } }
+    @keyframes sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes cube-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes cube-spin-rev { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+    @keyframes wave1 { 0%,100% { height: 4px; y: 484px; } 50% { height: 18px; y: 470px; } }
+    @keyframes wave2 { 0%,100% { height: 8px; y: 480px; } 50% { height: 24px; y: 464px; } }
+    @keyframes wave3 { 0%,100% { height: 6px; y: 482px; } 50% { height: 14px; y: 474px; } }
+    @keyframes wave4 { 0%,100% { height: 10px; y: 478px; } 50% { height: 20px; y: 468px; } }
+    @keyframes load1 { 0% { width: 0; } 40% { width: 55px; } 60% { width: 55px; } 100% { width: 0; } }
+    @keyframes load2 { 0% { width: 0; } 30% { width: 40px; } 70% { width: 40px; } 100% { width: 0; } }
+    @keyframes lightning { 0%,88%,92%,100% { opacity: 0; } 89% { opacity: .7; } 90% { opacity: 0; } 91% { opacity: .9; } }
+    @keyframes lightning2 { 0%,55%,59%,63%,100% { opacity: 0; } 56% { opacity: .8; } 57% { opacity: .1; } 58% { opacity: 0; } 60% { opacity: .6; } 61% { opacity: 0; } 62% { opacity: .5; } }
+    @keyframes lightning3 { 0%,30%,34%,100% { opacity: 0; } 31% { opacity: .6; } 32% { opacity: 0; } 33% { opacity: .8; } }
+    @keyframes hex-rotate { from { transform: rotate(0deg); } to { transform: rotate(60deg); } }
+    @keyframes data-scroll { from { transform: translateY(0); } to { transform: translateY(-70px); } }
+    @keyframes ping { 0% { r: 2; opacity: .8; } 100% { r: 20; opacity: 0; } }
+    @keyframes ping-lg { 0% { r: 3; opacity: .6; } 100% { r: 35; opacity: 0; } }
+    @keyframes vertical-beam { 0%,100% { opacity: .08; } 50% { opacity: .25; } }
+    @keyframes warn-blink { 0%,100% { opacity: .6; } 50% { opacity: 0; } }
+    @keyframes typewriter { 0% { width: 0; } 50% { width: 65px; } 80% { width: 65px; } 100% { width: 0; } }
+  </style>
+
+  <defs>
+    <filter id="g1" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="g2" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="g3" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="18" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="g4" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="30" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glitch" x="-5%" y="-5%" width="110%" height="110%">
+      <feOffset in="SourceGraphic" dx="2" dy="0" result="r"/>
+      <feOffset in="SourceGraphic" dx="-2" dy="0" result="b"/>
+      <feColorMatrix in="r" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="red"/>
+      <feColorMatrix in="b" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="blue"/>
+      <feBlend in="red" in2="SourceGraphic" mode="screen" result="rb"/>
+      <feBlend in="rb" in2="blue" mode="screen"/>
+    </filter>
+    <radialGradient id="core-grad" cx="50%" cy="50%">
+      <stop offset="0%" stop-color="#44d62c" stop-opacity=".4"/>
+      <stop offset="35%" stop-color="#44d62c" stop-opacity=".1"/>
+      <stop offset="100%" stop-color="#44d62c" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="core-cyan" cx="50%" cy="50%">
+      <stop offset="0%" stop-color="#00e5ff" stop-opacity=".18"/>
+      <stop offset="100%" stop-color="#00e5ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="radar-grad" cx="50%" cy="50%">
+      <stop offset="0%" stop-color="#44d62c" stop-opacity="0"/>
+      <stop offset="85%" stop-color="#44d62c" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#44d62c" stop-opacity=".15"/>
+    </radialGradient>
+    <linearGradient id="beam-v" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#44d62c" stop-opacity="0"/>
+      <stop offset="30%" stop-color="#44d62c" stop-opacity=".3"/>
+      <stop offset="50%" stop-color="#44d62c" stop-opacity=".6"/>
+      <stop offset="70%" stop-color="#44d62c" stop-opacity=".3"/>
+      <stop offset="100%" stop-color="#44d62c" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="sweep-clip">
+      <path d="M400,220 L400,60 A160,160 0 0,1 538,148 Z"/>
+    </clipPath>
+    <!-- Honeycomb tile -->
+    <pattern id="honeycomb" x="0" y="0" width="36" height="62" patternUnits="userSpaceOnUse">
+      <polygon points="18,2 34,11 34,29 18,38 2,29 2,11" fill="none" stroke="#44d62c" stroke-width=".3" opacity=".12"/>
+      <polygon points="18,33 34,42 34,60 18,69 2,60 2,42" fill="none" stroke="#44d62c" stroke-width=".3" opacity=".08"/>
+    </pattern>
+  </defs>
+
+  <!-- ================================================ -->
+  <!-- HONEYCOMB TESSELLATION BACKGROUND                -->
+  <!-- ================================================ -->
+  <rect x="0" y="0" width="800" height="360" fill="url(#honeycomb)" opacity=".4"/>
+
+  <!-- ================================================ -->
+  <!-- VERTICAL ENERGY BEAM (center pillar)             -->
+  <!-- ================================================ -->
+  <rect x="398" y="0" width="4" height="520" fill="url(#beam-v)" opacity=".12" style="animation: vertical-beam 6s ease-in-out infinite"/>
+  <rect x="396" y="0" width="8" height="520" fill="url(#beam-v)" opacity=".04" filter="url(#g2)"/>
+
+  <!-- ================================================ -->
+  <!-- INFINITE PERSPECTIVE GRID                        -->
+  <!-- ================================================ -->
+  <g opacity=".45">
+    <line x1="-200" y1="360" x2="1000" y2="360" class="grid-ln" stroke-width=".4"/>
+    <line x1="-100" y1="380" x2="900" y2="380" class="grid-ln" stroke-width=".5"/>
+    <line x1="-50" y1="400" x2="850" y2="400" class="grid-ln" stroke-width=".6"/>
+    <line x1="0" y1="420" x2="800" y2="420" class="grid-ln" stroke-width=".8"/>
+    <line x1="-50" y1="445" x2="850" y2="445" class="grid-ln" stroke-width="1"/>
+    <line x1="-100" y1="475" x2="900" y2="475" class="grid-ln" stroke-width="1.2"/>
+    <line x1="-200" y1="510" x2="1000" y2="510" class="grid-ln" stroke-width="1.5"/>
+  </g>
+  <g opacity=".4">
+    <line x1="400" y1="340" x2="-200" y2="520" class="grid-ln" stroke-width=".4"/>
+    <line x1="400" y1="340" x2="0" y2="520" class="grid-ln" stroke-width=".4"/>
+    <line x1="400" y1="340" x2="100" y2="520" class="grid-ln" stroke-width=".4"/>
+    <line x1="400" y1="340" x2="200" y2="520" class="grid-ln" stroke-width=".5"/>
+    <line x1="400" y1="340" x2="300" y2="520" class="grid-ln" stroke-width=".5"/>
+    <line x1="400" y1="340" x2="400" y2="520" class="grid-ln" stroke-width=".6"/>
+    <line x1="400" y1="340" x2="500" y2="520" class="grid-ln" stroke-width=".5"/>
+    <line x1="400" y1="340" x2="600" y2="520" class="grid-ln" stroke-width=".5"/>
+    <line x1="400" y1="340" x2="700" y2="520" class="grid-ln" stroke-width=".4"/>
+    <line x1="400" y1="340" x2="800" y2="520" class="grid-ln" stroke-width=".4"/>
+    <line x1="400" y1="340" x2="1000" y2="520" class="grid-ln" stroke-width=".4"/>
+  </g>
+  <!-- Neon grid glow -->
+  <g filter="url(#g2)">
+    <line x1="0" y1="420" x2="800" y2="420" stroke="#44d62c" stroke-width="1.5" opacity=".2"/>
+    <line x1="-50" y1="445" x2="850" y2="445" stroke="#44d62c" stroke-width="1" opacity=".15"/>
+    <line x1="400" y1="340" x2="100" y2="520" stroke="#44d62c" stroke-width=".8" opacity=".1"/>
+    <line x1="400" y1="340" x2="700" y2="520" stroke="#44d62c" stroke-width=".8" opacity=".1"/>
+    <line x1="400" y1="340" x2="400" y2="520" stroke="#44d62c" stroke-width="1" opacity=".15"/>
+  </g>
+  <!-- Grid intersection glows -->
+  <g fill="#44d62c" filter="url(#g2)">
+    <circle cx="400" cy="420" r="2.5" opacity=".5" style="animation: glow-pulse 2s ease-in-out infinite"/>
+    <circle cx="300" cy="445" r="2" opacity=".3"/>
+    <circle cx="500" cy="445" r="2" opacity=".3"/>
+    <circle cx="400" cy="445" r="2.5" opacity=".4" style="animation: glow-pulse 3s ease-in-out .5s infinite"/>
+    <circle cx="200" cy="475" r="1.5" opacity=".2"/>
+    <circle cx="600" cy="475" r="1.5" opacity=".2"/>
+    <circle cx="400" cy="475" r="2" opacity=".3"/>
+  </g>
+
+  <!-- ================================================ -->
+  <!-- MATRIX DATA RAIN (denser, with bright leads)     -->
+  <!-- ================================================ -->
+  <g font-family="ui-monospace,SFMono-Regular,monospace" font-size="9" opacity=".14">
+    <g fill="#44d62c" style="animation: rain 8s linear infinite">
+      <text x="60" y="0">1</text><text x="60" y="22">0</text><text x="60" y="44">1</text><text x="60" y="66">1</text><text x="60" y="88">0</text>
+      <text x="60" y="110">0</text><text x="60" y="132">1</text><text x="60" y="154">0</text><text x="60" y="176">1</text><text x="60" y="198">1</text>
+      <text x="60" y="220">0</text><text x="60" y="242">1</text><text x="60" y="264">0</text><text x="60" y="286">0</text><text x="60" y="308">1</text>
+      <text x="60" y="330">1</text><text x="60" y="352">0</text><text x="60" y="374">1</text><text x="60" y="396">0</text><text x="60" y="418">1</text>
+      <text x="60" y="440">0</text><text x="60" y="462">1</text><text x="60" y="484">1</text><text x="60" y="506">0</text>
+      <text x="60" y="520" fill="#fff" opacity=".9" font-weight="bold">1</text>
+    </g>
+    <g fill="#44d62c" style="animation: rain 11s linear -3s infinite" opacity=".8">
+      <text x="130" y="0">0</text><text x="130" y="26">1</text><text x="130" y="52">0</text><text x="130" y="78">0</text><text x="130" y="104">1</text>
+      <text x="130" y="130">1</text><text x="130" y="156">0</text><text x="130" y="182">1</text><text x="130" y="208">0</text><text x="130" y="234">1</text>
+      <text x="130" y="260">1</text><text x="130" y="286">0</text><text x="130" y="312">0</text><text x="130" y="338">1</text><text x="130" y="364">0</text>
+      <text x="130" y="390">1</text><text x="130" y="416">1</text><text x="130" y="442">0</text><text x="130" y="468">0</text><text x="130" y="494">1</text>
+      <text x="130" y="514" fill="#fff" opacity=".9" font-weight="bold">0</text>
+    </g>
+    <g fill="#00e5ff" style="animation: rain 9s linear -1s infinite" opacity=".6">
+      <text x="195" y="0">A</text><text x="195" y="24">7</text><text x="195" y="48">F</text><text x="195" y="72">3</text><text x="195" y="96">E</text>
+      <text x="195" y="120">9</text><text x="195" y="144">B</text><text x="195" y="168">0</text><text x="195" y="192">D</text><text x="195" y="216">2</text>
+      <text x="195" y="240">8</text><text x="195" y="264">C</text><text x="195" y="288">1</text><text x="195" y="312">6</text><text x="195" y="336">4</text>
+      <text x="195" y="360">F</text><text x="195" y="384">A</text><text x="195" y="408">5</text><text x="195" y="432">E</text><text x="195" y="456">7</text>
+      <text x="195" y="480">3</text><text x="195" y="504">B</text>
+      <text x="195" y="518" fill="#fff" opacity=".9" font-weight="bold">F</text>
+    </g>
+    <!-- New extra rain columns -->
+    <g fill="#44d62c" style="animation: rain 6s linear -1.5s infinite" opacity=".5">
+      <text x="95" y="0">0</text><text x="95" y="28">1</text><text x="95" y="56">1</text><text x="95" y="84">0</text><text x="95" y="112">0</text>
+      <text x="95" y="140">1</text><text x="95" y="168">0</text><text x="95" y="196">1</text><text x="95" y="224">1</text><text x="95" y="252">0</text>
+      <text x="95" y="280">1</text><text x="95" y="308">0</text><text x="95" y="336">0</text><text x="95" y="364">1</text><text x="95" y="392">1</text>
+      <text x="95" y="420">0</text><text x="95" y="448">1</text><text x="95" y="476">0</text><text x="95" y="504">1</text>
+    </g>
+    <g fill="#c030ff" style="animation: rain 14s linear -7s infinite" opacity=".35">
+      <text x="160" y="0">D</text><text x="160" y="30">4</text><text x="160" y="60">9</text><text x="160" y="90">E</text><text x="160" y="120">1</text>
+      <text x="160" y="150">7</text><text x="160" y="180">B</text><text x="160" y="210">3</text><text x="160" y="240">F</text><text x="160" y="270">8</text>
+      <text x="160" y="300">2</text><text x="160" y="330">A</text><text x="160" y="360">6</text><text x="160" y="390">C</text><text x="160" y="420">0</text>
+      <text x="160" y="450">5</text><text x="160" y="480">D</text><text x="160" y="510">9</text>
+    </g>
+    <g fill="#44d62c" style="animation: rain 13s linear -6s infinite" opacity=".5">
+      <text x="620" y="0">1</text><text x="620" y="24">0</text><text x="620" y="48">1</text><text x="620" y="72">1</text><text x="620" y="96">1</text>
+      <text x="620" y="120">0</text><text x="620" y="144">0</text><text x="620" y="168">1</text><text x="620" y="192">0</text><text x="620" y="216">1</text>
+      <text x="620" y="240">1</text><text x="620" y="264">0</text><text x="620" y="288">1</text><text x="620" y="312">0</text><text x="620" y="336">0</text>
+      <text x="620" y="360">1</text><text x="620" y="384">1</text><text x="620" y="408">0</text><text x="620" y="432">1</text><text x="620" y="456">0</text>
+      <text x="620" y="480">0</text><text x="620" y="504">1</text>
+      <text x="620" y="518" fill="#fff" opacity=".9" font-weight="bold">1</text>
+    </g>
+    <g fill="#c030ff" style="animation: rain 12s linear -5s infinite" opacity=".3">
+      <text x="650" y="0">3</text><text x="650" y="28">A</text><text x="650" y="56">F</text><text x="650" y="84">7</text><text x="650" y="112">2</text>
+      <text x="650" y="140">E</text><text x="650" y="168">B</text><text x="650" y="196">0</text><text x="650" y="224">9</text><text x="650" y="252">C</text>
+      <text x="650" y="280">4</text><text x="650" y="308">8</text><text x="650" y="336">1</text><text x="650" y="364">D</text><text x="650" y="392">6</text>
+      <text x="650" y="420">5</text><text x="650" y="448">3</text><text x="650" y="476">A</text><text x="650" y="504">F</text>
+    </g>
+    <g fill="#00e5ff" style="animation: rain 10s linear -4s infinite" opacity=".5">
+      <text x="700" y="0">C</text><text x="700" y="26">4</text><text x="700" y="52">F</text><text x="700" y="78">A</text><text x="700" y="104">2</text>
+      <text x="700" y="130">D</text><text x="700" y="156">8</text><text x="700" y="182">1</text><text x="700" y="208">6</text><text x="700" y="234">B</text>
+      <text x="700" y="260">3</text><text x="700" y="286">E</text><text x="700" y="312">9</text><text x="700" y="338">0</text><text x="700" y="364">7</text>
+      <text x="700" y="390">5</text><text x="700" y="416">A</text><text x="700" y="442">F</text><text x="700" y="468">2</text><text x="700" y="494">C</text>
+      <text x="700" y="514" fill="#fff" opacity=".9" font-weight="bold">D</text>
+    </g>
+    <g fill="#44d62c" style="animation: rain 7s linear -2s infinite" opacity=".7">
+      <text x="740" y="0">0</text><text x="740" y="22">1</text><text x="740" y="44">1</text><text x="740" y="66">0</text><text x="740" y="88">1</text>
+      <text x="740" y="110">0</text><text x="740" y="132">0</text><text x="740" y="154">1</text><text x="740" y="176">1</text><text x="740" y="198">0</text>
+      <text x="740" y="220">1</text><text x="740" y="242">0</text><text x="740" y="264">1</text><text x="740" y="286">1</text><text x="740" y="308">0</text>
+      <text x="740" y="330">0</text><text x="740" y="352">1</text><text x="740" y="374">0</text><text x="740" y="396">1</text><text x="740" y="418">1</text>
+      <text x="740" y="440">0</text><text x="740" y="462">0</text><text x="740" y="484">1</text><text x="740" y="506">0</text>
+      <text x="740" y="518" fill="#fff" opacity=".9" font-weight="bold">1</text>
+    </g>
+  </g>
+
+  <!-- ================================================ -->
+  <!-- MASSIVE CENTRAL CORE GLOW                        -->
+  <!-- ================================================ -->
+  <circle cx="400" cy="220" r="180" fill="url(#core-grad)" style="animation: glow-slow 4s ease-in-out infinite"/>
+  <circle cx="400" cy="220" r="220" fill="url(#core-cyan)"/>
+
+  <!-- Shockwave rings -->
+  <circle cx="400" cy="220" fill="none" stroke="#44d62c" stroke-width="1.5" opacity=".7" filter="url(#g2)">
+    <animate attributeName="r" values="18;160" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values=".7;0" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-width" values="2.5;.2" dur="4s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="400" cy="220" fill="none" stroke="#44d62c" stroke-width="1.2" opacity=".5" filter="url(#g2)">
+    <animate attributeName="r" values="18;160" dur="4s" begin="1.3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values=".5;0" dur="4s" begin="1.3s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-width" values="1.8;.15" dur="4s" begin="1.3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="400" cy="220" fill="none" stroke="#00e5ff" stroke-width="1" opacity=".35" filter="url(#g2)">
+    <animate attributeName="r" values="18;160" dur="4s" begin="2.6s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values=".35;0" dur="4s" begin="2.6s" repeatCount="indefinite"/>
+    <animate attributeName="stroke-width" values="1.2;.1" dur="4s" begin="2.6s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- ================================================ -->
+  <!-- RADAR SWEEP (inside core area)                   -->
+  <!-- ================================================ -->
+  <g style="transform-origin:400px 220px; animation: sweep 6s linear infinite" opacity=".5">
+    <g clip-path="url(#sweep-clip)">
+      <circle cx="400" cy="220" r="120" fill="url(#radar-grad)"/>
+    </g>
+    <!-- Sweep leading edge -->
+    <line x1="400" y1="220" x2="400" y2="100" stroke="#44d62c" stroke-width="1" opacity=".4" filter="url(#g2)"/>
+  </g>
+  <!-- Radar rings (static) -->
+  <circle cx="400" cy="220" r="40" fill="none" stroke="#44d62c" stroke-width=".3" opacity=".12"/>
+  <circle cx="400" cy="220" r="80" fill="none" stroke="#44d62c" stroke-width=".3" opacity=".1"/>
+  <circle cx="400" cy="220" r="120" fill="none" stroke="#44d62c" stroke-width=".3" opacity=".08"/>
+  <!-- Radar blips -->
+  <g fill="#44d62c" filter="url(#g2)">
+    <circle cx="435" cy="185" r="2" opacity=".6" style="animation: glow-pulse 2s ease-in-out infinite"/>
+    <circle cx="370" cy="250" r="1.5" opacity=".4" style="animation: glow-pulse 3s ease-in-out 1s infinite"/>
+    <circle cx="450" cy="240" r="1.5" opacity=".5" style="animation: glow-pulse 2.5s ease-in-out .5s infinite"/>
+    <circle cx="380" cy="190" r="1" opacity=".3" style="animation: glow-pulse 4s ease-in-out 1.5s infinite"/>
+  </g>
+
+  <!-- ================================================ -->
+  <!-- ROTATING ORBITAL RINGS                           -->
+  <!-- ================================================ -->
+  <g style="transform-origin:400px 220px; animation: spin 30s linear infinite">
+    <ellipse cx="400" cy="220" rx="160" ry="60" fill="none" stroke="#44d62c" stroke-width="1.8" opacity=".5" stroke-dasharray="12 6 3 6" filter="url(#g2)"/>
+    <circle cx="560" cy="220" r="5" fill="#44d62c" opacity=".9" filter="url(#g1)"/>
+    <circle cx="560" cy="220" r="2" fill="#fff" opacity=".9"/>
+    <!-- Trailing particles on ring 1 -->
+    <circle cx="545" cy="228" r="2" fill="#44d62c" opacity=".4"/>
+    <circle cx="530" cy="234" r="1.5" fill="#44d62c" opacity=".25"/>
+    <circle cx="515" cy="238" r="1" fill="#44d62c" opacity=".15"/>
+  </g>
+  <g style="transform-origin:400px 220px; animation: spin-rev 22s linear infinite" transform="rotate(-25 400 220)">
+    <ellipse cx="400" cy="220" rx="140" ry="50" fill="none" stroke="#00e5ff" stroke-width="1.2" opacity=".35" stroke-dasharray="8 12" filter="url(#g2)"/>
+    <circle cx="260" cy="220" r="4" fill="#00e5ff" opacity=".8" filter="url(#g1)"/>
+    <circle cx="260" cy="220" r="1.5" fill="#fff" opacity=".9"/>
+    <circle cx="275" cy="213" r="1.5" fill="#00e5ff" opacity=".35"/>
+    <circle cx="290" cy="208" r="1" fill="#00e5ff" opacity=".2"/>
+  </g>
+  <g style="transform-origin:400px 220px; animation: spin 40s linear infinite" transform="rotate(35 400 220)">
+    <ellipse cx="400" cy="220" rx="175" ry="45" fill="none" stroke="#c030ff" stroke-width=".8" opacity=".25" stroke-dasharray="4 18"/>
+    <circle cx="575" cy="220" r="3" fill="#c030ff" opacity=".7" filter="url(#g2)"/>
+    <circle cx="560" cy="226" r="1.5" fill="#c030ff" opacity=".3"/>
+  </g>
+
+  <!-- ================================================ -->
+  <!-- WIREFRAME 3D CUBE (rotating near core)           -->
+  <!-- ================================================ -->
+  <g transform="translate(400,220)" opacity=".2">
+    <g style="transform-origin:0px 0px; animation: cube-spin 20s linear infinite">
+      <!-- Front face -->
+      <polygon points="-45,-45 45,-45 45,45 -45,45" fill="none" stroke="#00e5ff" stroke-width=".8"/>
+      <!-- Back face (smaller = perspective) -->
+      <polygon points="-30,-30 30,-30 30,30 -30,30" fill="none" stroke="#00e5ff" stroke-width=".5" opacity=".5"/>
+      <!-- Connecting edges -->
+      <line x1="-45" y1="-45" x2="-30" y2="-30" stroke="#00e5ff" stroke-width=".5" opacity=".5"/>
+      <line x1="45" y1="-45" x2="30" y2="-30" stroke="#00e5ff" stroke-width=".5" opacity=".5"/>
+      <line x1="45" y1="45" x2="30" y2="30" stroke="#00e5ff" stroke-width=".5" opacity=".5"/>
+      <line x1="-45" y1="45" x2="-30" y2="30" stroke="#00e5ff" stroke-width=".5" opacity=".5"/>
+    </g>
+  </g>
+  <!-- Second cube, counter-rotating -->
+  <g transform="translate(400,220)" opacity=".1">
+    <g style="transform-origin:0px 0px; animation: cube-spin-rev 15s linear infinite">
+      <polygon points="-60,-60 60,-60 60,60 -60,60" fill="none" stroke="#c030ff" stroke-width=".5"/>
+      <polygon points="-40,-40 40,-40 40,40 -40,40" fill="none" stroke="#c030ff" stroke-width=".3" opacity=".5"/>
+      <line x1="-60" y1="-60" x2="-40" y2="-40" stroke="#c030ff" stroke-width=".3" opacity=".5"/>
+      <line x1="60" y1="-60" x2="40" y2="-40" stroke="#c030ff" stroke-width=".3" opacity=".5"/>
+      <line x1="60" y1="60" x2="40" y2="40" stroke="#c030ff" stroke-width=".3" opacity=".5"/>
+      <line x1="-60" y1="60" x2="-40" y2="40" stroke="#c030ff" stroke-width=".3" opacity=".5"/>
+    </g>
+  </g>
+
+  <!-- ================================================ -->
+  <!-- CENTRAL HEXAGONAL STRUCTURE                      -->
+  <!-- ================================================ -->
+  <g transform="translate(400,220)">
+    <polygon points="90,0 45,78 -45,78 -90,0 -45,-78 45,-78" stroke="#44d62c" stroke-width="2" fill="none" opacity=".6" filter="url(#g1)"/>
+    <polygon points="88,0 44,76 -44,76 -88,0 -44,-76 44,-76" fill="#44d62c" opacity=".03"/>
+    <polygon points="60,0 30,52 -30,52 -60,0 -30,-52 30,-52" stroke="#44d62c" stroke-width="1.5" fill="none" opacity=".45" filter="url(#g2)"/>
+    <polygon points="35,0 17.5,30.3 -17.5,30.3 -35,0 -17.5,-30.3 17.5,-30.3" stroke="#44d62c" stroke-width="2.5" fill="none" opacity=".8" filter="url(#g1)" style="animation: flick 6s linear infinite"/>
+    <g stroke="#44d62c" stroke-width=".6" opacity=".2">
+      <line x1="0" y1="-90" x2="0" y2="90"/>
+      <line x1="-78" y1="-45" x2="78" y2="45"/>
+      <line x1="-78" y1="45" x2="78" y2="-45"/>
+    </g>
+    <!-- Hex edge energy flow -->
+    <polygon points="90,0 45,78 -45,78 -90,0 -45,-78 45,-78" stroke="#44d62c" stroke-width="1" fill="none" opacity=".3" stroke-dasharray="8 12" style="animation: energy 2s linear infinite"/>
+
+    <!-- Vertex glow nodes -->
+    <g fill="#44d62c" filter="url(#g2)">
+      <circle cx="90" cy="0" r="4" opacity=".8" style="animation: glow-pulse 1.5s ease-in-out infinite"/>
+      <circle cx="45" cy="-78" r="4" opacity=".8" style="animation: glow-pulse 1.5s ease-in-out .25s infinite"/>
+      <circle cx="-45" cy="-78" r="4" opacity=".8" style="animation: glow-pulse 1.5s ease-in-out .5s infinite"/>
+      <circle cx="-90" cy="0" r="4" opacity=".8" style="animation: glow-pulse 1.5s ease-in-out .75s infinite"/>
+      <circle cx="-45" cy="78" r="4" opacity=".8" style="animation: glow-pulse 1.5s ease-in-out 1s infinite"/>
+      <circle cx="45" cy="78" r="4" opacity=".8" style="animation: glow-pulse 1.5s ease-in-out 1.25s infinite"/>
+    </g>
+    <g fill="#fff" opacity=".8">
+      <circle cx="90" cy="0" r="1.5"/>
+      <circle cx="45" cy="-78" r="1.5"/>
+      <circle cx="-45" cy="-78" r="1.5"/>
+      <circle cx="-90" cy="0" r="1.5"/>
+      <circle cx="-45" cy="78" r="1.5"/>
+      <circle cx="45" cy="78" r="1.5"/>
+    </g>
+    <!-- Vertex ping animations -->
+    <circle cx="90" cy="0" fill="none" stroke="#44d62c" stroke-width=".8">
+      <animate attributeName="r" values="2;20" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values=".5;0" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="-90" cy="0" fill="none" stroke="#44d62c" stroke-width=".8">
+      <animate attributeName="r" values="2;20" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values=".5;0" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- Core eye -->
+    <circle cx="0" cy="0" r="14" fill="#44d62c" opacity=".25" filter="url(#g1)"/>
+    <circle cx="0" cy="0" r="7" fill="#44d62c" opacity=".6" filter="url(#g2)"/>
+    <circle cx="0" cy="0" r="3.5" fill="#fff" opacity=".95" filter="url(#g2)"/>
+    <circle cx="0" cy="0" r="1.5" fill="#44d62c" opacity="1"/>
+  </g>
+
+  <!-- ================================================ -->
+  <!-- LIGHTNING / ELECTRIC ARCS                        -->
+  <!-- ================================================ -->
+  <!-- Arc: core to top-left -->
+  <polyline points="400,220 360,190 340,150 310,130 280,100 240,88 190,78 140,80" fill="none" stroke="#44d62c" stroke-width="1.5" filter="url(#g2)" style="animation: lightning 7s linear infinite"/>
+  <!-- Arc: core to top-right -->
+  <polyline points="400,220 440,195 470,155 510,130 560,105 620,85 660,80" fill="none" stroke="#00e5ff" stroke-width="1.2" filter="url(#g2)" style="animation: lightning2 9s linear infinite"/>
+  <!-- Arc: core to left -->
+  <polyline points="400,220 350,225 300,240 250,248 200,255 150,258 100,260 70,260" fill="none" stroke="#c030ff" stroke-width="1" filter="url(#g2)" style="animation: lightning3 6s linear infinite"/>
+  <!-- Arc: core to right -->
+  <polyline points="400,220 450,218 500,235 550,242 600,248 650,255 710,258 740,260" fill="none" stroke="#44d62c" stroke-width="1" filter="url(#g2)" style="animation: lightning 11s linear 3s infinite"/>
+  <!-- Arc: node-to-node (top) -->
+  <polyline points="140,80 200,58 280,50 360,55 440,52 520,58 600,65 660,80" fill="none" stroke="#44d62c" stroke-width=".8" filter="url(#g2)" style="animation: lightning2 8s linear 1s infinite"/>
+
+  <!-- ================================================ -->
+  <!-- ENERGY BEAMS (existing, enhanced)                -->
+  <!-- ================================================ -->
+  <line x1="400" y1="220" x2="120" y2="80" stroke="#44d62c" stroke-width="1.2" stroke-dasharray="6 10" opacity=".35" filter="url(#g2)" style="animation: energy 1.5s linear infinite"/>
+  <line x1="400" y1="220" x2="680" y2="80" stroke="#00e5ff" stroke-width="1" stroke-dasharray="6 10" opacity=".25" filter="url(#g2)" style="animation: energy 2s linear infinite"/>
+  <line x1="400" y1="220" x2="50" y2="260" stroke="#c030ff" stroke-width=".8" stroke-dasharray="4 12" opacity=".2" filter="url(#g2)" style="animation: energy 2.5s linear infinite"/>
+  <line x1="400" y1="220" x2="750" y2="260" stroke="#44d62c" stroke-width=".8" stroke-dasharray="4 12" opacity=".2" filter="url(#g2)" style="animation: energy 1.8s linear infinite"/>
+  <line x1="400" y1="220" x2="160" y2="380" stroke="#00e5ff" stroke-width=".6" stroke-dasharray="3 8" opacity=".15" style="animation: energy 3s linear infinite"/>
+  <line x1="400" y1="220" x2="640" y2="380" stroke="#c030ff" stroke-width=".6" stroke-dasharray="3 8" opacity=".15" style="animation: energy 2.2s linear infinite"/>
+
+  <!-- ================================================ -->
+  <!-- OUTER NODES                                      -->
+  <!-- ================================================ -->
+  <!-- Node A: top-left -->
+  <g transform="translate(120,80)" style="animation: bob 5s ease-in-out infinite">
+    <polygon points="28,0 14,24 -14,24 -28,0 -14,-24 14,-24" fill="none" stroke="#44d62c" stroke-width="1.5" opacity=".7" filter="url(#g2)"/>
+    <polygon points="16,0 8,13.9 -8,13.9 -16,0 -8,-13.9 8,-13.9" fill="#44d62c" opacity=".1"/>
+    <circle cx="0" cy="0" r="6" fill="#44d62c" opacity=".5" filter="url(#g2)"/>
+    <circle cx="0" cy="0" r="2.5" fill="#fff" opacity=".8"/>
+    <!-- Ping from node -->
+    <circle cx="0" cy="0" fill="none" stroke="#44d62c" stroke-width=".6">
+      <animate attributeName="r" values="3;25" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values=".4;0" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <text x="0" y="40" font-family="ui-monospace,monospace" font-size="7" fill="#44d62c" text-anchor="middle" opacity=".6" filter="url(#g2)">NODE:01</text>
+  </g>
+  <!-- Node B: top-right -->
+  <g transform="translate(680,80)" style="animation: bob 6s ease-in-out 1s infinite">
+    <polygon points="28,0 14,24 -14,24 -28,0 -14,-24 14,-24" fill="none" stroke="#00e5ff" stroke-width="1.5" opacity=".7" filter="url(#g2)"/>
+    <polygon points="16,0 8,13.9 -8,13.9 -16,0 -8,-13.9 8,-13.9" fill="#00e5ff" opacity=".1"/>
+    <circle cx="0" cy="0" r="6" fill="#00e5ff" opacity=".5" filter="url(#g2)"/>
+    <circle cx="0" cy="0" r="2.5" fill="#fff" opacity=".8"/>
+    <circle cx="0" cy="0" fill="none" stroke="#00e5ff" stroke-width=".6">
+      <animate attributeName="r" values="3;25" dur="4.5s" begin=".5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values=".4;0" dur="4.5s" begin=".5s" repeatCount="indefinite"/>
+    </circle>
+    <text x="0" y="40" font-family="ui-monospace,monospace" font-size="7" fill="#00e5ff" text-anchor="middle" opacity=".6" filter="url(#g2)">NODE:02</text>
+  </g>
+  <!-- Node C: left -->
+  <g transform="translate(50,260)" style="animation: bob2 4.5s ease-in-out .5s infinite">
+    <polygon points="22,0 11,19 -11,19 -22,0 -11,-19 11,-19" fill="none" stroke="#c030ff" stroke-width="1.2" opacity=".6" filter="url(#g2)"/>
+    <circle cx="0" cy="0" r="5" fill="#c030ff" opacity=".4" filter="url(#g2)"/>
+    <circle cx="0" cy="0" r="2" fill="#fff" opacity=".7"/>
+    <text x="0" y="32" font-family="ui-monospace,monospace" font-size="6" fill="#c030ff" text-anchor="middle" opacity=".5">NODE:03</text>
+  </g>
+  <!-- Node D: right -->
+  <g transform="translate(750,260)" style="animation: bob2 5.5s ease-in-out 2s infinite">
+    <polygon points="22,0 11,19 -11,19 -22,0 -11,-19 11,-19" fill="none" stroke="#44d62c" stroke-width="1.2" opacity=".6" filter="url(#g2)"/>
+    <circle cx="0" cy="0" r="5" fill="#44d62c" opacity=".4" filter="url(#g2)"/>
+    <circle cx="0" cy="0" r="2" fill="#fff" opacity=".7"/>
+    <text x="0" y="32" font-family="ui-monospace,monospace" font-size="6" fill="#44d62c" text-anchor="middle" opacity=".5">NODE:04</text>
+  </g>
+  <!-- Node E: bottom-left -->
+  <g transform="translate(160,380)" style="animation: bob2 5s ease-in-out 3s infinite">
+    <polygon points="18,0 9,15.6 -9,15.6 -18,0 -9,-15.6 9,-15.6" fill="none" stroke="#00e5ff" stroke-width="1" opacity=".45"/>
+    <circle cx="0" cy="0" r="4" fill="#00e5ff" opacity=".35" filter="url(#g2)"/>
+    <circle cx="0" cy="0" r="1.5" fill="#fff" opacity=".6"/>
+  </g>
+  <!-- Node F: bottom-right -->
+  <g transform="translate(640,380)" style="animation: bob2 4s ease-in-out 1.5s infinite">
+    <polygon points="18,0 9,15.6 -9,15.6 -18,0 -9,-15.6 9,-15.6" fill="none" stroke="#c030ff" stroke-width="1" opacity=".45"/>
+    <circle cx="0" cy="0" r="4" fill="#c030ff" opacity=".35" filter="url(#g2)"/>
+    <circle cx="0" cy="0" r="1.5" fill="#fff" opacity=".6"/>
+  </g>
+
+  <!-- ================================================ -->
+  <!-- CIRCUIT TRACES                                   -->
+  <!-- ================================================ -->
+  <g stroke-linecap="round" fill="none">
+    <polyline points="20,100 45,100 45,150 70,150 70,180" stroke="#44d62c" stroke-width="1" opacity=".25" stroke-dasharray="4 6" style="animation: dash-f 2s linear infinite"/>
+    <polyline points="10,200 35,200 35,170 55,170" stroke="#00e5ff" stroke-width=".8" opacity=".2" stroke-dasharray="3 5" style="animation: dash-f 2.5s linear infinite"/>
+    <polyline points="15,320 40,320 55,300 55,270" stroke="#44d62c" stroke-width=".8" opacity=".2" stroke-dasharray="3 5" style="animation: dash-r 3s linear infinite"/>
+    <polyline points="5,370 30,370 30,340 15,340 15,310" stroke="#c030ff" stroke-width=".6" opacity=".15" stroke-dasharray="2 4" style="animation: dash-f 3.5s linear infinite"/>
+    <polyline points="780,100 755,100 755,150 730,150 730,180" stroke="#00e5ff" stroke-width="1" opacity=".25" stroke-dasharray="4 6" style="animation: dash-r 2s linear infinite"/>
+    <polyline points="790,200 765,200 765,170 745,170" stroke="#44d62c" stroke-width=".8" opacity=".2" stroke-dasharray="3 5" style="animation: dash-r 2.5s linear infinite"/>
+    <polyline points="785,320 760,320 745,300 745,270" stroke="#c030ff" stroke-width=".8" opacity=".2" stroke-dasharray="3 5" style="animation: dash-f 3s linear infinite"/>
+    <polyline points="795,370 770,370 770,340 785,340 785,310" stroke="#00e5ff" stroke-width=".6" opacity=".15" stroke-dasharray="2 4" style="animation: dash-r 3.5s linear infinite"/>
+  </g>
+  <g filter="url(#g2)">
+    <circle cx="70" cy="180" r="2.5" fill="#44d62c" opacity=".5"/>
+    <circle cx="55" cy="170" r="2" fill="#00e5ff" opacity=".4"/>
+    <circle cx="55" cy="270" r="2" fill="#44d62c" opacity=".4"/>
+    <circle cx="15" cy="310" r="1.5" fill="#c030ff" opacity=".3"/>
+    <circle cx="730" cy="180" r="2.5" fill="#00e5ff" opacity=".5"/>
+    <circle cx="745" cy="170" r="2" fill="#44d62c" opacity=".4"/>
+    <circle cx="745" cy="270" r="2" fill="#c030ff" opacity=".4"/>
+    <circle cx="785" cy="310" r="1.5" fill="#00e5ff" opacity=".3"/>
+  </g>
+
+  <!-- ================================================ -->
+  <!-- WARNING TRIANGLES (animated)                     -->
+  <!-- ================================================ -->
+  <g opacity=".5" style="animation: warn-blink 2s ease-in-out infinite">
+    <polygon points="265,42 270,33 275,42" fill="none" stroke="#FFAA00" stroke-width="1" filter="url(#g2)"/>
+    <line x1="270" y1="36" x2="270" y2="39" stroke="#FFAA00" stroke-width="1"/>
+    <circle cx="270" cy="40.5" r=".5" fill="#FFAA00"/>
+  </g>
+  <g opacity=".4" style="animation: warn-blink 2.5s ease-in-out 1s infinite">
+    <polygon points="520,42 525,33 530,42" fill="none" stroke="#FFAA00" stroke-width="1" filter="url(#g2)"/>
+    <line x1="525" y1="36" x2="525" y2="39" stroke="#FFAA00" stroke-width="1"/>
+    <circle cx="525" cy="40.5" r=".5" fill="#FFAA00"/>
+  </g>
+
+  <!-- ================================================ -->
+  <!-- SCROLLING DATA PANELS (left + right)             -->
+  <!-- ================================================ -->
+  <!-- Left data panel -->
+  <g transform="translate(18,410)" opacity=".2">
+    <rect x="0" y="0" width="52" height="56" rx="2" fill="none" stroke="#44d62c" stroke-width=".5"/>
+    <g font-family="ui-monospace,monospace" font-size="5.5" fill="#44d62c" clip-path="inset(1px)">
+      <g style="animation: data-scroll 4s linear infinite">
+        <text x="4" y="10">0xF7A2</text>
+        <text x="4" y="20">0x3E8B</text>
+        <text x="4" y="30">0xD104</text>
+        <text x="4" y="40">0x92CF</text>
+        <text x="4" y="50">0x6B51</text>
+        <text x="4" y="60">0xA8E3</text>
+        <text x="4" y="70">0x1F96</text>
+        <text x="4" y="80">0xC4DA</text>
+        <text x="4" y="90">0x57B8</text>
+        <text x="4" y="100">0xED20</text>
+        <text x="4" y="110">0x84FC</text>
+        <text x="4" y="120">0x3067</text>
+      </g>
+    </g>
+  </g>
+  <!-- Right data panel -->
+  <g transform="translate(730,410)" opacity=".2">
+    <rect x="0" y="0" width="52" height="56" rx="2" fill="none" stroke="#00e5ff" stroke-width=".5"/>
+    <g font-family="ui-monospace,monospace" font-size="5.5" fill="#00e5ff" clip-path="inset(1px)">
+      <g style="animation: data-scroll 5s linear -2s infinite">
+        <text x="4" y="10">PKT:847</text>
+        <text x="4" y="20">PKT:848</text>
+        <text x="4" y="30">PKT:849</text>
+        <text x="4" y="40">PKT:850</text>
+        <text x="4" y="50">PKT:851</text>
+        <text x="4" y="60">PKT:852</text>
+        <text x="4" y="70">PKT:853</text>
+        <text x="4" y="80">PKT:854</text>
+        <text x="4" y="90">PKT:855</text>
+        <text x="4" y="100">PKT:856</text>
+        <text x="4" y="110">PKT:857</text>
+        <text x="4" y="120">PKT:858</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ================================================ -->
+  <!-- GLITCH SCANLINE + BARS                           -->
+  <!-- ================================================ -->
+  <g filter="url(#glitch)" style="animation: scan 5s ease-in-out infinite">
+    <rect x="0" y="218" width="800" height="3" fill="#44d62c" opacity=".2"/>
+    <rect x="0" y="222" width="800" height="1" fill="#fff" opacity=".08"/>
+  </g>
+  <rect x="80" y="155" width="180" height="1.5" fill="#44d62c" opacity=".06" style="animation: appear 8s linear infinite"/>
+  <rect x="520" y="290" width="140" height="1" fill="#00e5ff" opacity=".05" style="animation: appear 11s linear 3s infinite"/>
+  <rect x="200" y="340" width="100" height="1" fill="#c030ff" opacity=".04" style="animation: appear 9s linear 5s infinite"/>
+  <rect x="50" y="195" width="90" height="1.5" fill="#44d62c" opacity=".05" style="animation: appear 13s linear 2s infinite"/>
+  <rect x="660" y="170" width="110" height="1" fill="#00e5ff" opacity=".04" style="animation: appear 10s linear 6s infinite"/>
+
+  <!-- ================================================ -->
+  <!-- HUD OVERLAY TEXT                                 -->
+  <!-- ================================================ -->
+  <g font-family="ui-monospace,SFMono-Regular,monospace">
+    <!-- Top HUD -->
+    <text x="30" y="28" font-size="7" fill="#44d62c" opacity=".4" filter="url(#g2)" style="animation: flick2 12s linear infinite">SYS.ONLINE</text>
+    <text x="350" y="28" font-size="6" fill="#00e5ff" opacity=".25" style="animation: flick3 8s linear 2s infinite">SCANNING</text>
+    <text x="700" y="28" font-size="7" fill="#44d62c" opacity=".35" filter="url(#g2)">AES-256</text>
+    <line x1="95" y1="25" x2="340" y2="25" stroke="#44d62c" stroke-width=".4" opacity=".12"/>
+    <line x1="405" y1="25" x2="690" y2="25" stroke="#44d62c" stroke-width=".4" opacity=".12"/>
+
+    <!-- Top progress bars -->
+    <rect x="95" y="20" width="80" height="3" rx="1" class="bar-bg" opacity=".3"/>
+    <rect x="95" y="20" width="0" height="3" rx="1" fill="#44d62c" opacity=".5" style="animation: load1 6s ease-in-out infinite"/>
+    <rect x="610" y="20" width="60" height="3" rx="1" class="bar-bg" opacity=".3"/>
+    <rect x="610" y="20" width="0" height="3" rx="1" fill="#00e5ff" opacity=".5" style="animation: load2 8s ease-in-out 2s infinite"/>
+
+    <!-- Bottom HUD -->
+    <text x="30" y="505" font-size="6.5" fill="#44d62c" opacity=".3">NODES:06</text>
+    <text x="130" y="505" font-size="6.5" fill="#00e5ff" opacity=".3" style="animation: glow-pulse 3s ease-in-out infinite">MESH:ACTIVE</text>
+    <text x="280" y="505" font-size="6" fill="#c030ff" opacity=".25" style="animation: flick3 10s linear 3s infinite">BREACH:NONE</text>
+    <text x="520" y="505" font-size="6.5" class="txt" opacity=".4">&lt;1ms</text>
+    <text x="580" y="505" font-size="6.5" fill="#FFAA00" opacity=".25" style="animation: warn-blink 3s ease-in-out infinite">FIREWALL</text>
+    <text x="670" y="505" font-size="6.5" fill="#44d62c" opacity=".35" style="animation: glow-pulse 2s ease-in-out infinite">ENCRYPTED</text>
+    <line x1="30" y1="495" x2="770" y2="495" stroke="#44d62c" stroke-width=".3" opacity=".1"/>
+  </g>
+
+  <!-- ================================================ -->
+  <!-- WAVEFORM VISUALIZER (bottom center)              -->
+  <!-- ================================================ -->
+  <g transform="translate(340,488)" opacity=".25">
+    <rect x="0" y="-6" width="2" height="4" rx=".5" fill="#44d62c" style="animation: wave1 .8s ease-in-out infinite"/>
+    <rect x="5" y="-10" width="2" height="8" rx=".5" fill="#44d62c" style="animation: wave2 .6s ease-in-out .1s infinite"/>
+    <rect x="10" y="-14" width="2" height="6" rx=".5" fill="#44d62c" style="animation: wave4 .7s ease-in-out .05s infinite"/>
+    <rect x="15" y="-18" width="2" height="10" rx=".5" fill="#00e5ff" style="animation: wave2 .5s ease-in-out .15s infinite"/>
+    <rect x="20" y="-12" width="2" height="14" rx=".5" fill="#44d62c" style="animation: wave1 .9s ease-in-out .2s infinite"/>
+    <rect x="25" y="-20" width="2" height="18" rx=".5" fill="#44d62c" style="animation: wave4 .55s ease-in-out .08s infinite"/>
+    <rect x="30" y="-16" width="2" height="12" rx=".5" fill="#00e5ff" style="animation: wave3 .65s ease-in-out .12s infinite"/>
+    <rect x="35" y="-22" width="2" height="20" rx=".5" fill="#44d62c" style="animation: wave2 .5s ease-in-out infinite"/>
+    <rect x="40" y="-18" width="2" height="14" rx=".5" fill="#44d62c" style="animation: wave1 .75s ease-in-out .18s infinite"/>
+    <rect x="45" y="-24" width="2" height="22" rx=".5" fill="#00e5ff" style="animation: wave4 .45s ease-in-out .06s infinite"/>
+    <rect x="50" y="-20" width="2" height="16" rx=".5" fill="#44d62c" style="animation: wave3 .7s ease-in-out .1s infinite"/>
+    <rect x="55" y="-26" width="2" height="24" rx=".5" fill="#44d62c" style="animation: wave2 .5s ease-in-out .22s infinite"/>
+    <rect x="60" y="-22" width="2" height="18" rx=".5" fill="#00e5ff" style="animation: wave1 .6s ease-in-out .14s infinite"/>
+    <rect x="65" y="-24" width="2" height="20" rx=".5" fill="#44d62c" style="animation: wave4 .55s ease-in-out .16s infinite"/>
+    <rect x="70" y="-18" width="2" height="14" rx=".5" fill="#44d62c" style="animation: wave3 .8s ease-in-out .04s infinite"/>
+    <rect x="75" y="-14" width="2" height="10" rx=".5" fill="#00e5ff" style="animation: wave2 .65s ease-in-out .2s infinite"/>
+    <rect x="80" y="-10" width="2" height="8" rx=".5" fill="#44d62c" style="animation: wave1 .7s ease-in-out .09s infinite"/>
+    <rect x="85" y="-8" width="2" height="6" rx=".5" fill="#44d62c" style="animation: wave3 .9s ease-in-out .25s infinite"/>
+    <rect x="90" y="-6" width="2" height="4" rx=".5" fill="#44d62c" style="animation: wave1 .85s ease-in-out .3s infinite"/>
+  </g>
+
+  <!-- ================================================ -->
+  <!-- CORNER BRACKETS                                  -->
+  <!-- ================================================ -->
+  <g stroke="#44d62c" stroke-width="2" opacity=".35" fill="none" stroke-linecap="round" filter="url(#g2)">
+    <path d="M 15,40 L 15,15 L 40,15"/>
+    <path d="M 785,40 L 785,15 L 760,15"/>
+    <path d="M 15,480 L 15,505 L 40,505"/>
+    <path d="M 785,480 L 785,505 L 760,505"/>
+  </g>
+  <!-- Animated corner dots -->
+  <circle cx="15" cy="15" r="2" fill="#44d62c" opacity=".6" style="animation: glow-pulse 2s ease-in-out infinite"/>
+  <circle cx="785" cy="15" r="2" fill="#44d62c" opacity=".6" style="animation: glow-pulse 2s ease-in-out .5s infinite"/>
+  <circle cx="15" cy="505" r="2" fill="#44d62c" opacity=".6" style="animation: glow-pulse 2s ease-in-out 1s infinite"/>
+  <circle cx="785" cy="505" r="2" fill="#44d62c" opacity=".6" style="animation: glow-pulse 2s ease-in-out 1.5s infinite"/>
+
+  <!-- ================================================ -->
+  <!-- FLOATING PARTICLES                               -->
+  <!-- ================================================ -->
+  <g filter="url(#g2)">
+    <circle cx="310" cy="60" r="2" fill="#44d62c" opacity=".5" style="animation: glow-pulse 3s ease-in-out infinite"/>
+    <circle cx="490" cy="50" r="1.5" fill="#00e5ff" opacity=".4" style="animation: glow-pulse 4s ease-in-out 1s infinite"/>
+    <circle cx="240" cy="160" r="2.5" fill="#44d62c" opacity=".4" style="animation: glow-pulse 2.5s ease-in-out .5s infinite"/>
+    <circle cx="560" cy="150" r="2" fill="#c030ff" opacity=".35" style="animation: glow-pulse 3.5s ease-in-out 2s infinite"/>
+    <circle cx="100" cy="400" r="1.5" fill="#44d62c" opacity=".3" style="animation: glow-pulse 4s ease-in-out 1.5s infinite"/>
+    <circle cx="700" cy="400" r="1.5" fill="#00e5ff" opacity=".25" style="animation: glow-pulse 3s ease-in-out 3s infinite"/>
+    <circle cx="400" cy="370" r="2" fill="#44d62c" opacity=".3" style="animation: glow-pulse 3s ease-in-out .8s infinite"/>
+    <circle cx="280" cy="310" r="1.5" fill="#00e5ff" opacity=".3" style="animation: glow-pulse 5s ease-in-out infinite"/>
+    <circle cx="520" cy="310" r="1.5" fill="#c030ff" opacity=".25" style="animation: glow-pulse 4.5s ease-in-out 2.5s infinite"/>
+    <circle cx="170" cy="110" r="1.5" fill="#44d62c" opacity=".3" style="animation: glow-pulse 3.5s ease-in-out 1.2s infinite"/>
+    <circle cx="630" cy="110" r="1.5" fill="#00e5ff" opacity=".25" style="animation: glow-pulse 4.2s ease-in-out 1.8s infinite"/>
+    <circle cx="350" cy="330" r="2" fill="#c030ff" opacity=".2" style="animation: glow-pulse 5.5s ease-in-out .3s infinite"/>
+    <circle cx="450" cy="340" r="2" fill="#44d62c" opacity=".2" style="animation: glow-pulse 4.8s ease-in-out 2.8s infinite"/>
+  </g>
+</svg>

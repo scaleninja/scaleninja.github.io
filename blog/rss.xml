@@ -1,0 +1,703 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>ScaleNinja | Blog</title><description/><link>https://scaleninja.com/</link><language>en</language><item><title>Apache CloudStack Ubuntu/KVM Guide for x86_64 and ARM64</title><link>https://scaleninja.com/blog/cloudstack/</link><guid isPermaLink="true">https://scaleninja.com/blog/cloudstack/</guid><pubDate>Sun, 04 Jan 2026 00:00:00 GMT</pubDate><content:encoded>&lt;aside aria-label=&quot;Note&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Note&lt;/p&gt;&lt;div&gt;&lt;p&gt;This guide was updated for &lt;code dir=&quot;auto&quot;&gt;Apache CloudStack v4.22&lt;/code&gt; and tested on x86_64 and ARM64 hosts such
+as Intel NUCs, Beelink AMD mini-PCs, Dell rack servers, Raspberry Pi 4/5 and
+Ampere Ultra servers.&lt;/p&gt;&lt;p&gt;This guide may get outdated in future, please &lt;a href=&quot;http://docs.cloudstack.apache.org/en/latest/installguide&quot;&gt;refer to the project’s install
+guide&lt;/a&gt; and
+&lt;a href=&quot;http://docs.cloudstack.apache.org/en/latest/installguide/hypervisor/kvm.html&quot;&gt;docs on KVM host installation&lt;/a&gt;.&lt;/p&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;p&gt;This guide covers the installation and build of Apache CloudStack IaaS cloud on
+Ubuntu using KVM, for both x86_64 and ARM64 architectures.&lt;/p&gt;
+&lt;p&gt;If you’re new to Apache CloudStack, here a video for you:
+&lt;a href=&quot;https://www.youtube.com/watch?v=pASzZR57V_8&quot;&gt;CloudStack 101: The Best Way to Build Your Private Cloud&lt;/a&gt;&lt;/p&gt;
+&lt;iframe width=&quot;100%&quot; height=&quot;480&quot; src=&quot;https://www.youtube.com/embed/pASzZR57V_8&quot; title=&quot;YouTube video player&quot; frameborder=&quot;0&quot; allow=&quot;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share&quot; referrerpolicy=&quot;strict-origin-when-cross-origin&quot; allowfullscreen&gt;&lt;/iframe&gt;
+
+&lt;aside aria-label=&quot;Tip&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Tip&lt;/p&gt;&lt;div&gt;&lt;p&gt;Users new to Apache CloudStack can also try the new console-based one-line installer: &lt;a href=&quot;https://github.com/apache/cloudstack-installer&quot;&gt;https://github.com/apache/cloudstack-installer&lt;/a&gt;&lt;/p&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;div&gt;&lt;h2 id=&quot;getting-started&quot;&gt;Getting Started&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;First install Ubuntu 24.04/later LTS on your x86_64 or
+&lt;a href=&quot;https://ubuntu.com/download/raspberry-pi&quot;&gt;ARM64&lt;/a&gt; system.&lt;/p&gt;
+&lt;aside aria-label=&quot;Note&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Note&lt;/p&gt;&lt;div&gt;&lt;p&gt;Ensure Intel VT-X or AMD-V is available and enabled on the x86_64 hosts,
+preferably with 16 GB RAM or more.&lt;/p&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;aside aria-label=&quot;Caution&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Caution&lt;/p&gt;&lt;div&gt;&lt;p&gt;On ARM64 hosts, ensure 64-bit mode and GIC may need to be enabled in some
+systems, such as on Raspberry Pi 4/5:&lt;/p&gt;&lt;div data-nova-code-container=&quot;&quot; data-nova-code-title=&quot;/boot/firmware/config.txt&quot;&gt;&lt;div&gt;/boot/firmware/config.txt&lt;/div&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;[all]&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;arm_64bit=1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;enable_gic=1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;# NVME speed config&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;dtparam=nvme&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;dtparam=pciex1_1=gen3&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;dtparam=pciex1_gen=3&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;# Current config&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;usb_max_current_enable=1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;max_usb_current=1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;dtoverlay=vc4-kms-v3d&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;disable_fw_kms_setup=1&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;p&gt;Ensure that the &lt;code dir=&quot;auto&quot;&gt;universe&lt;/code&gt; repository is enabled in &lt;code dir=&quot;auto&quot;&gt;/etc/apt/sources.list&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Install basic packages:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;apt-get&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; openntpd&lt;/span&gt;&lt;span&gt; openssh-server&lt;/span&gt;&lt;span&gt; sudo&lt;/span&gt;&lt;span&gt; vim&lt;/span&gt;&lt;span&gt; htop&lt;/span&gt;&lt;span&gt; tar&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Ensure that KVM is available at &lt;code dir=&quot;auto&quot;&gt;/dev/kvm&lt;/code&gt; or by running kvm-ok:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;apt-get&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; cpu-checker&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;kvm-ok&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;INFO:&lt;/span&gt;&lt;span&gt; /dev/kvm&lt;/span&gt;&lt;span&gt; exists&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;KVM&lt;/span&gt;&lt;span&gt; acceleration&lt;/span&gt;&lt;span&gt; can&lt;/span&gt;&lt;span&gt; be&lt;/span&gt;&lt;span&gt; used&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Optional: Intel based systems may benefit from CPU microcode install/update:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;apt-get&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; intel-microcode&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Allow the root user for ssh access using password, fix &lt;code dir=&quot;auto&quot;&gt;/etc/ssh/sshd_config&lt;/code&gt; to
+set &lt;code dir=&quot;auto&quot;&gt;PermitRootLogin yes&lt;/code&gt; and restart ssh using &lt;code dir=&quot;auto&quot;&gt;systemctl restart ssh&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Change and remember the &lt;code dir=&quot;auto&quot;&gt;root&lt;/code&gt; password:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;passwd&lt;/span&gt;&lt;span&gt; root&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div&gt;&lt;h2 id=&quot;network-setup&quot;&gt;Network Setup&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;Next, setup host networking using Linux bridges that can handle CloudStack’s
+public, guest, management and storage traffic. For simplicity, a single bridge
+&lt;code dir=&quot;auto&quot;&gt;cloudbr0&lt;/code&gt; can be used for all traffic types on the same physical network. Install
+bridge utilities using:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;apt-get&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; bridge-utils&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This guide assumes that you’re in a 192.168.1.0/24 network which is a typical
+RFC1918 private network.&lt;/p&gt;
+&lt;div&gt;&lt;h3 id=&quot;ubuntu-netplan-config&quot;&gt;Ubuntu Netplan Config&lt;/h3&gt;&lt;/div&gt;
+&lt;p&gt;Starting Ubuntu bionic, admins can use &lt;code dir=&quot;auto&quot;&gt;netplan&lt;/code&gt; to configure networking. The
+default installation creates a file at &lt;code dir=&quot;auto&quot;&gt;/etc/netplan/50-cloud-init.yaml&lt;/code&gt; that
+you should comment, and create a file at &lt;code dir=&quot;auto&quot;&gt;/etc/netplan/01-netcfg.yaml&lt;/code&gt; applying
+your network and interface/name specific changes:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot; data-nova-code-title=&quot;/etc/netplan/01-netcfg.yaml&quot;&gt;&lt;div&gt;/etc/netplan/01-netcfg.yaml&lt;/div&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;     network:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;       version: 2&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;       renderer: networkd&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;       ethernets:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;         eno1:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;           dhcp4: false&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;           dhcp6: false&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;           optional: true&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;       bridges:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;         cloudbr0:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;           addresses: [192.168.1.10/24]&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;           routes:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;            - to: default&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;              via: 192.168.1.1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;           nameservers:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;             addresses: [1.1.1.1, 8.8.8.8]&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;           interfaces: [eno1]&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;           dhcp4: false&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;           dhcp6: false&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;           parameters:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;             stp: false&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;             forward-delay: 0&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside aria-label=&quot;Note&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Note&lt;/p&gt;&lt;div&gt;&lt;p&gt;You may need to replace &lt;code dir=&quot;auto&quot;&gt;eno1&lt;/code&gt; with the name of the physical NIC on your host,
+and replace the &lt;code dir=&quot;auto&quot;&gt;192.168.1.10/24&lt;/code&gt; to the IP address of your host.&lt;/p&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;aside aria-label=&quot;Tip&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Tip&lt;/p&gt;&lt;div&gt;&lt;p&gt;If you want to use VXLAN based traffic isolation, make sure to increase the MTU
+setting of the physical nics by &lt;code dir=&quot;auto&quot;&gt;50 bytes&lt;/code&gt; (because VXLAN header size is 50
+bytes). For example, see below:&lt;/p&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;div data-nova-code-container=&quot;&quot; data-nova-code-title=&quot;/etc/netplan/01-netcfg.yaml&quot;&gt;&lt;div&gt;/etc/netplan/01-netcfg.yaml&lt;/div&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;  ethernets:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    eno1:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      match:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;        macaddress: 00:01:2e:4f:f7:d0&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      mtu: 1550&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      dhcp4: false&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      dhcp6: false&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    enp3s0:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      mtu: 1550&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Apply network config and reboot/re-ssh:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;netplan&lt;/span&gt;&lt;span&gt; generate&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;netplan&lt;/span&gt;&lt;span&gt; apply&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div&gt;&lt;h2 id=&quot;repo-setup&quot;&gt;Repo Setup&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;Setup the repository on your Ubuntu host:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;mkdir&lt;/span&gt;&lt;span&gt; -p&lt;/span&gt;&lt;span&gt; /etc/apt/keyrings&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;wget&lt;/span&gt;&lt;span&gt; -O-&lt;/span&gt;&lt;span&gt; http://packages.shapeblue.com/release.asc&lt;/span&gt;&lt;span&gt; |&lt;/span&gt;&lt;span&gt; gpg&lt;/span&gt;&lt;span&gt; --dearmor&lt;/span&gt;&lt;span&gt; |&lt;/span&gt;&lt;span&gt; sudo&lt;/span&gt;&lt;span&gt; tee&lt;/span&gt;&lt;span&gt; /etc/apt/keyrings/cloudstack.gpg&lt;/span&gt;&lt;span&gt; &gt;&lt;/span&gt;&lt;span&gt; /dev/null&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;echo&lt;/span&gt;&lt;span&gt; deb&lt;/span&gt;&lt;span&gt; [signed-by=/etc/apt/keyrings/cloudstack.gpg] http://packages.shapeblue.com/cloudstack/upstream/debian/4.22 / &lt;/span&gt;&lt;span&gt;&gt;&lt;/span&gt;&lt;span&gt; /etc/apt/sources.list.d/cloudstack.list&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;apt-get&lt;/span&gt;&lt;span&gt; update&lt;/span&gt;&lt;span&gt; -y&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This should be run on all hosts where CloudStack software packages (management
+server, usage server, agent etc) needs to be installed, esp if you’ve multiple hosts.&lt;/p&gt;
+&lt;div&gt;&lt;h2 id=&quot;management-server-setup&quot;&gt;Management Server Setup&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;Install CloudStack management server and MySQL server: (run as root, once the CloudStack repository is setup)&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;apt-get&lt;/span&gt;&lt;span&gt; update&lt;/span&gt;&lt;span&gt; -y&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;apt-get&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; cloudstack-management&lt;/span&gt;&lt;span&gt; mysql-server&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Optionally, if you want usage server you can run:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;apt-get&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; cloudstack-usage&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div&gt;&lt;h2 id=&quot;database-setup&quot;&gt;Database Setup&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;Make a note of the MySQL server’s root user password. Configure InnoDB settings
+in mysql server’s &lt;code dir=&quot;auto&quot;&gt;/etc/mysql/mysql.conf.d/mysqld.cnf&lt;/code&gt;:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;[mysqld]&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;server_id &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt; 1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;sql&lt;/span&gt;&lt;span&gt;-&lt;/span&gt;&lt;span&gt;mode&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;&quot;STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION,ERROR_FOR_DIVISION_BY_ZERO,NO_ZERO_DATE,NO_ZERO_IN_DATE,NO_ENGINE_SUBSTITUTION&quot;&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;innodb_rollback_on_timeout&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;innodb_lock_wait_timeout&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;600&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;max_connections&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;1000&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;log&lt;/span&gt;&lt;span&gt;-&lt;/span&gt;&lt;span&gt;bin&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;mysql&lt;/span&gt;&lt;span&gt;-&lt;/span&gt;&lt;span&gt;bin&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;binlog&lt;/span&gt;&lt;span&gt;-&lt;/span&gt;&lt;span&gt;format &lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt; &apos;ROW&apos;&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;#&lt;/span&gt;&lt;span&gt;default&lt;/span&gt;&lt;span&gt;-&lt;/span&gt;&lt;span&gt;authentication&lt;/span&gt;&lt;span&gt;-&lt;/span&gt;&lt;span&gt;plugin&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;mysql_native_password&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Restart MySQL server and setup database:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;systemctl&lt;/span&gt;&lt;span&gt; restart&lt;/span&gt;&lt;span&gt; mysql&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;cloudstack-setup-databases&lt;/span&gt;&lt;span&gt; cloud:cloud@localhost&lt;/span&gt;&lt;span&gt; --deploy-as=root:&lt;/span&gt;&lt;span&gt; -i&lt;/span&gt;&lt;span&gt; 192.168.1.10&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside aria-label=&quot;Note&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Note&lt;/p&gt;&lt;div&gt;&lt;p&gt;Note the &lt;code dir=&quot;auto&quot;&gt;-i&lt;/code&gt; flag in the &lt;code dir=&quot;auto&quot;&gt;cloudstack-setup-databases&lt;/code&gt; command to override the IP address of the management server host if that’s something different than what it detects automatically. The &lt;code dir=&quot;auto&quot;&gt;--deploy-as&lt;/code&gt; typically has &lt;code dir=&quot;auto&quot;&gt;root&lt;/code&gt; password, in this example its blank as root password is blank.&lt;/p&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;div&gt;&lt;h2 id=&quot;storage-setup&quot;&gt;Storage Setup&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;Install NFS server:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;apt-get&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; nfs-kernel-server&lt;/span&gt;&lt;span&gt; quota&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Create exports:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;echo&lt;/span&gt;&lt;span&gt; &quot;/export  *(rw,async,no_root_squash,no_subtree_check)&quot;&lt;/span&gt;&lt;span&gt; &gt;&lt;/span&gt;&lt;span&gt; /etc/exports&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;mkdir&lt;/span&gt;&lt;span&gt; -p&lt;/span&gt;&lt;span&gt; /export/primary&lt;/span&gt;&lt;span&gt; /export/secondary&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;exportfs&lt;/span&gt;&lt;span&gt; -a&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside aria-label=&quot;Tip&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Tip&lt;/p&gt;&lt;div&gt;&lt;p&gt;The &lt;code dir=&quot;auto&quot;&gt;/export&lt;/code&gt; may even be a different disk or external storage, in which case you can format and mount it via &lt;code dir=&quot;auto&quot;&gt;/etc/fstab&lt;/code&gt;.&lt;/p&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;p&gt;Configure and restart NFS server:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;sed&lt;/span&gt;&lt;span&gt; -i&lt;/span&gt;&lt;span&gt; -e&lt;/span&gt;&lt;span&gt; &apos;s/^RPCMOUNTDOPTS=&quot;--manage-gids&quot;$/RPCMOUNTDOPTS=&quot;-p 892 --manage-gids&quot;/g&apos;&lt;/span&gt;&lt;span&gt; /etc/default/nfs-kernel-server&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;sed&lt;/span&gt;&lt;span&gt; -i&lt;/span&gt;&lt;span&gt; -e&lt;/span&gt;&lt;span&gt; &apos;s/^STATDOPTS=$/STATDOPTS=&quot;--port 662 --outgoing-port 2020&quot;/g&apos;&lt;/span&gt;&lt;span&gt; /etc/default/nfs-common&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;echo&lt;/span&gt;&lt;span&gt; &quot;NEED_STATD=yes&quot;&lt;/span&gt;&lt;span&gt; &gt;&gt;&lt;/span&gt;&lt;span&gt; /etc/default/nfs-common&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;sed&lt;/span&gt;&lt;span&gt; -i&lt;/span&gt;&lt;span&gt; -e&lt;/span&gt;&lt;span&gt; &apos;s/^RPCRQUOTADOPTS=$/RPCRQUOTADOPTS=&quot;-p 875&quot;/g&apos;&lt;/span&gt;&lt;span&gt; /etc/default/quota&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;service&lt;/span&gt;&lt;span&gt; nfs-kernel-server&lt;/span&gt;&lt;span&gt; restart&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside aria-label=&quot;Caution&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Caution&lt;/p&gt;&lt;div&gt;&lt;p&gt;For ARM64 hosts, seed an appropriate arm64 based systemvm template manually from
+the management server for the specific CloudStack version, for example for 4.22:&lt;/p&gt;&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;wget&lt;/span&gt;&lt;span&gt; http://download.cloudstack.org/systemvm/4.22/systemvmtemplate-4.22.0-aarch64-kvm.qcow2.bz2&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;/usr/share/cloudstack-common/scripts/storage/secondary/cloud-install-sys-tmplt&lt;/span&gt;&lt;span&gt; \&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;          -m&lt;/span&gt;&lt;span&gt; /export/secondary&lt;/span&gt;&lt;span&gt; -f&lt;/span&gt;&lt;span&gt; systemvmtemplate-4.22.0-aarch64-kvm.qcow2.bz2&lt;/span&gt;&lt;span&gt; -h&lt;/span&gt;&lt;span&gt; kvm&lt;/span&gt;&lt;span&gt; \&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;          -o&lt;/span&gt;&lt;span&gt; localhost&lt;/span&gt;&lt;span&gt; -r&lt;/span&gt;&lt;span&gt; cloud&lt;/span&gt;&lt;span&gt; -d&lt;/span&gt;&lt;span&gt; cloud&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Future, CloudStack releases are working towards automating installation and
+upgrades of ARM64 systemvmtemplates.&lt;/p&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;div&gt;&lt;h2 id=&quot;kvm-host-setup&quot;&gt;KVM Host Setup&lt;/h2&gt;&lt;/div&gt;
+&lt;aside aria-label=&quot;Tip&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Tip&lt;/p&gt;&lt;div&gt;&lt;p&gt;Configure the &lt;a href=&quot;#repo-setup&quot;&gt;CloudStack repo&lt;/a&gt; on your KVM host if it’s not the management server host&lt;/p&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;p&gt;Install KVM and CloudStack agent, configure libvirt:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;apt-get&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; qemu-kvm&lt;/span&gt;&lt;span&gt; cloudstack-agent&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Enable VNC for console proxy:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;sed&lt;/span&gt;&lt;span&gt; -i&lt;/span&gt;&lt;span&gt; -e&lt;/span&gt;&lt;span&gt; &apos;s/\#vnc_listen.*$/vnc_listen = &quot;0.0.0.0&quot;/g&apos;&lt;/span&gt;&lt;span&gt; /etc/libvirt/qemu.conf&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;On Ubuntu 22.04/24.04 or later, add &lt;code dir=&quot;auto&quot;&gt;LIBVIRTD_ARGS=&quot;--listen&quot;&lt;/code&gt; to &lt;code dir=&quot;auto&quot;&gt;/etc/default/libvirtd&lt;/code&gt;:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;echo&lt;/span&gt;&lt;span&gt; LIBVIRTD_ARGS=&lt;/span&gt;&lt;span&gt;\&quot;&lt;/span&gt;&lt;span&gt;--listen&lt;/span&gt;&lt;span&gt;\&quot;&lt;/span&gt;&lt;span&gt; &gt;&gt;&lt;/span&gt;&lt;span&gt; /etc/default/libvirtd&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The traditional socket/listen based configuration may not be supported with
+CloudStack, we can get the old behaviour using following:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;systemctl&lt;/span&gt;&lt;span&gt; mask&lt;/span&gt;&lt;span&gt; libvirtd.socket&lt;/span&gt;&lt;span&gt; libvirtd-ro.socket&lt;/span&gt;&lt;span&gt; libvirtd-admin.socket&lt;/span&gt;&lt;span&gt; libvirtd-tls.socket&lt;/span&gt;&lt;span&gt; libvirtd-tcp.socket&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;systemctl&lt;/span&gt;&lt;span&gt; restart&lt;/span&gt;&lt;span&gt; libvirtd&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Configure libvirt to connect to libvirtd and not to per-driver daemons, especially important on newer distros
+such as Ubuntu 24.04 (and EL9) by editing the &lt;code dir=&quot;auto&quot;&gt;/etc/libvirt/libvirt.conf&lt;/code&gt; and adding the following:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot; data-nova-code-title=&quot;/etc/libvirt/libvirt.conf&quot;&gt;&lt;div&gt;/etc/libvirt/libvirt.conf&lt;/div&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;remote_mode=&quot;legacy&quot;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Configure default libvirtd config:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;echo&lt;/span&gt;&lt;span&gt; &apos;listen_tls=0&apos;&lt;/span&gt;&lt;span&gt; &gt;&gt;&lt;/span&gt;&lt;span&gt; /etc/libvirt/libvirtd.conf&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;echo&lt;/span&gt;&lt;span&gt; &apos;listen_tcp=1&apos;&lt;/span&gt;&lt;span&gt; &gt;&gt;&lt;/span&gt;&lt;span&gt; /etc/libvirt/libvirtd.conf&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;echo&lt;/span&gt;&lt;span&gt; &apos;tcp_port = &quot;16509&quot;&apos;&lt;/span&gt;&lt;span&gt; &gt;&gt;&lt;/span&gt;&lt;span&gt; /etc/libvirt/libvirtd.conf&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;echo&lt;/span&gt;&lt;span&gt; &apos;mdns_adv = 0&apos;&lt;/span&gt;&lt;span&gt; &gt;&gt;&lt;/span&gt;&lt;span&gt; /etc/libvirt/libvirtd.conf&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;echo&lt;/span&gt;&lt;span&gt; &apos;auth_tcp = &quot;none&quot;&apos;&lt;/span&gt;&lt;span&gt; &gt;&gt;&lt;/span&gt;&lt;span&gt; /etc/libvirt/libvirtd.conf&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;systemctl&lt;/span&gt;&lt;span&gt; restart&lt;/span&gt;&lt;span&gt; libvirtd&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside aria-label=&quot;Note&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Note&lt;/p&gt;&lt;div&gt;&lt;p&gt;The above libvirtd configuration is just for initial setup, when you add the KVM
+host in CloudStack by default the host will be configured to use a more secure
+mTLS configuration.&lt;/p&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;aside aria-label=&quot;Danger&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Danger&lt;/p&gt;&lt;div&gt;&lt;p&gt;On ARM64 hosts, please ensure the following options are set in the
+&lt;code dir=&quot;auto&quot;&gt;/etc/cloudstack/agent/agent.properties&lt;/code&gt;: (you may need to check/re-add these for
+your KVM host, post zone deployment)&lt;/p&gt;&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;guest.cpu.arch=aarch64&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;guest.cpu.mode=host-passthrough&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;host.cpu.manual.speed.mhz=1500&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The &lt;code dir=&quot;auto&quot;&gt;host.cpu.manual.speed.mhz&lt;/code&gt; must be configured because Linux on ARM64 isn’t
+able to report the correct CPU speed on some ARM64 hosts.&lt;/p&gt;&lt;p&gt;By default 1GB of host memory is reserved for agent/host usage, which you can
+change/reduce it using the following in the agent.properties file, for example:&lt;/p&gt;&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;host.reserved.mem.mb=800&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;aside aria-label=&quot;Caution&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Caution&lt;/p&gt;&lt;div&gt;&lt;p&gt;On certain hosts where you may be running docker and other services, you may
+need to add the following in &lt;code dir=&quot;auto&quot;&gt;/etc/sysctl.conf&lt;/code&gt; and then run &lt;code dir=&quot;auto&quot;&gt;sysctl -p&lt;/code&gt;:&lt;/p&gt;&lt;div data-nova-code-container=&quot;&quot; data-nova-code-title=&quot;/etc/sysctl.conf&quot;&gt;&lt;div&gt;/etc/sysctl.conf&lt;/div&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;net.bridge.bridge-nf-call-arptables = 0&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;net.bridge.bridge-nf-call-iptables = 0&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;sysctl&lt;/span&gt;&lt;span&gt; -p&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;aside aria-label=&quot;Tip&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Tip&lt;/p&gt;&lt;div&gt;&lt;p&gt;Optional: If you’re using a non-compliant server vendor or virtual environment,
+in some cases you may need to configure unique host ID for libvirt:&lt;/p&gt;&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;apt-get&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; uuid&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;UUID&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;$(&lt;/span&gt;&lt;span&gt;uuid&lt;/span&gt;&lt;span&gt;)&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;echo&lt;/span&gt;&lt;span&gt; host_uuid&lt;/span&gt;&lt;span&gt; =&lt;/span&gt;&lt;span&gt; \&quot;&lt;/span&gt;&lt;span&gt;$UUID&lt;/span&gt;&lt;span&gt;\&quot;&lt;/span&gt;&lt;span&gt; &gt;&gt;&lt;/span&gt;&lt;span&gt; /etc/libvirt/libvirtd.conf&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;systemctl&lt;/span&gt;&lt;span&gt; restart&lt;/span&gt;&lt;span&gt; libvirtd&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;div&gt;&lt;h2 id=&quot;firewall-setup&quot;&gt;Firewall Setup&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;By default &lt;code dir=&quot;auto&quot;&gt;ufw&lt;/code&gt; may be disabled and this may not be required. If your system
+uses &lt;code dir=&quot;auto&quot;&gt;ufw&lt;/code&gt; (you can check using &lt;code dir=&quot;auto&quot;&gt;ufw status&lt;/code&gt;), you may run the following:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    ufw&lt;/span&gt;&lt;span&gt; allow&lt;/span&gt;&lt;span&gt; mysql&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ufw&lt;/span&gt;&lt;span&gt; allow&lt;/span&gt;&lt;span&gt; proto&lt;/span&gt;&lt;span&gt; tcp&lt;/span&gt;&lt;span&gt; from&lt;/span&gt;&lt;span&gt; any&lt;/span&gt;&lt;span&gt; to&lt;/span&gt;&lt;span&gt; any&lt;/span&gt;&lt;span&gt; port&lt;/span&gt;&lt;span&gt; 22&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ufw&lt;/span&gt;&lt;span&gt; allow&lt;/span&gt;&lt;span&gt; proto&lt;/span&gt;&lt;span&gt; tcp&lt;/span&gt;&lt;span&gt; from&lt;/span&gt;&lt;span&gt; any&lt;/span&gt;&lt;span&gt; to&lt;/span&gt;&lt;span&gt; any&lt;/span&gt;&lt;span&gt; port&lt;/span&gt;&lt;span&gt; 1798&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ufw&lt;/span&gt;&lt;span&gt; allow&lt;/span&gt;&lt;span&gt; proto&lt;/span&gt;&lt;span&gt; tcp&lt;/span&gt;&lt;span&gt; from&lt;/span&gt;&lt;span&gt; any&lt;/span&gt;&lt;span&gt; to&lt;/span&gt;&lt;span&gt; any&lt;/span&gt;&lt;span&gt; port&lt;/span&gt;&lt;span&gt; 16509&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ufw&lt;/span&gt;&lt;span&gt; allow&lt;/span&gt;&lt;span&gt; proto&lt;/span&gt;&lt;span&gt; tcp&lt;/span&gt;&lt;span&gt; from&lt;/span&gt;&lt;span&gt; any&lt;/span&gt;&lt;span&gt; to&lt;/span&gt;&lt;span&gt; any&lt;/span&gt;&lt;span&gt; port&lt;/span&gt;&lt;span&gt; 16514&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ufw&lt;/span&gt;&lt;span&gt; allow&lt;/span&gt;&lt;span&gt; proto&lt;/span&gt;&lt;span&gt; tcp&lt;/span&gt;&lt;span&gt; from&lt;/span&gt;&lt;span&gt; any&lt;/span&gt;&lt;span&gt; to&lt;/span&gt;&lt;span&gt; any&lt;/span&gt;&lt;span&gt; port&lt;/span&gt;&lt;span&gt; 5900:6100&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ufw&lt;/span&gt;&lt;span&gt; allow&lt;/span&gt;&lt;span&gt; proto&lt;/span&gt;&lt;span&gt; tcp&lt;/span&gt;&lt;span&gt; from&lt;/span&gt;&lt;span&gt; any&lt;/span&gt;&lt;span&gt; to&lt;/span&gt;&lt;span&gt; any&lt;/span&gt;&lt;span&gt; port&lt;/span&gt;&lt;span&gt; 49152:49216&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Alternatively, you can configure firewall rules using iptables for your
+management network:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    # configure firewall rules to allow useful ports&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    NETWORK&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;192.168.1.0/24&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    iptables&lt;/span&gt;&lt;span&gt; -A&lt;/span&gt;&lt;span&gt; INPUT&lt;/span&gt;&lt;span&gt; -s&lt;/span&gt;&lt;span&gt; $NETWORK&lt;/span&gt;&lt;span&gt; -m&lt;/span&gt;&lt;span&gt; state&lt;/span&gt;&lt;span&gt; --state&lt;/span&gt;&lt;span&gt; NEW&lt;/span&gt;&lt;span&gt; -p&lt;/span&gt;&lt;span&gt; udp&lt;/span&gt;&lt;span&gt; --dport&lt;/span&gt;&lt;span&gt; 111&lt;/span&gt;&lt;span&gt; -j&lt;/span&gt;&lt;span&gt; ACCEPT&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    iptables&lt;/span&gt;&lt;span&gt; -A&lt;/span&gt;&lt;span&gt; INPUT&lt;/span&gt;&lt;span&gt; -s&lt;/span&gt;&lt;span&gt; $NETWORK&lt;/span&gt;&lt;span&gt; -m&lt;/span&gt;&lt;span&gt; state&lt;/span&gt;&lt;span&gt; --state&lt;/span&gt;&lt;span&gt; NEW&lt;/span&gt;&lt;span&gt; -p&lt;/span&gt;&lt;span&gt; tcp&lt;/span&gt;&lt;span&gt; --dport&lt;/span&gt;&lt;span&gt; 111&lt;/span&gt;&lt;span&gt; -j&lt;/span&gt;&lt;span&gt; ACCEPT&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    iptables&lt;/span&gt;&lt;span&gt; -A&lt;/span&gt;&lt;span&gt; INPUT&lt;/span&gt;&lt;span&gt; -s&lt;/span&gt;&lt;span&gt; $NETWORK&lt;/span&gt;&lt;span&gt; -m&lt;/span&gt;&lt;span&gt; state&lt;/span&gt;&lt;span&gt; --state&lt;/span&gt;&lt;span&gt; NEW&lt;/span&gt;&lt;span&gt; -p&lt;/span&gt;&lt;span&gt; tcp&lt;/span&gt;&lt;span&gt; --dport&lt;/span&gt;&lt;span&gt; 2049&lt;/span&gt;&lt;span&gt; -j&lt;/span&gt;&lt;span&gt; ACCEPT&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    iptables&lt;/span&gt;&lt;span&gt; -A&lt;/span&gt;&lt;span&gt; INPUT&lt;/span&gt;&lt;span&gt; -s&lt;/span&gt;&lt;span&gt; $NETWORK&lt;/span&gt;&lt;span&gt; -m&lt;/span&gt;&lt;span&gt; state&lt;/span&gt;&lt;span&gt; --state&lt;/span&gt;&lt;span&gt; NEW&lt;/span&gt;&lt;span&gt; -p&lt;/span&gt;&lt;span&gt; tcp&lt;/span&gt;&lt;span&gt; --dport&lt;/span&gt;&lt;span&gt; 32803&lt;/span&gt;&lt;span&gt; -j&lt;/span&gt;&lt;span&gt; ACCEPT&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    iptables&lt;/span&gt;&lt;span&gt; -A&lt;/span&gt;&lt;span&gt; INPUT&lt;/span&gt;&lt;span&gt; -s&lt;/span&gt;&lt;span&gt; $NETWORK&lt;/span&gt;&lt;span&gt; -m&lt;/span&gt;&lt;span&gt; state&lt;/span&gt;&lt;span&gt; --state&lt;/span&gt;&lt;span&gt; NEW&lt;/span&gt;&lt;span&gt; -p&lt;/span&gt;&lt;span&gt; udp&lt;/span&gt;&lt;span&gt; --dport&lt;/span&gt;&lt;span&gt; 32769&lt;/span&gt;&lt;span&gt; -j&lt;/span&gt;&lt;span&gt; ACCEPT&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    iptables&lt;/span&gt;&lt;span&gt; -A&lt;/span&gt;&lt;span&gt; INPUT&lt;/span&gt;&lt;span&gt; -s&lt;/span&gt;&lt;span&gt; $NETWORK&lt;/span&gt;&lt;span&gt; -m&lt;/span&gt;&lt;span&gt; state&lt;/span&gt;&lt;span&gt; --state&lt;/span&gt;&lt;span&gt; NEW&lt;/span&gt;&lt;span&gt; -p&lt;/span&gt;&lt;span&gt; tcp&lt;/span&gt;&lt;span&gt; --dport&lt;/span&gt;&lt;span&gt; 892&lt;/span&gt;&lt;span&gt; -j&lt;/span&gt;&lt;span&gt; ACCEPT&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    iptables&lt;/span&gt;&lt;span&gt; -A&lt;/span&gt;&lt;span&gt; INPUT&lt;/span&gt;&lt;span&gt; -s&lt;/span&gt;&lt;span&gt; $NETWORK&lt;/span&gt;&lt;span&gt; -m&lt;/span&gt;&lt;span&gt; state&lt;/span&gt;&lt;span&gt; --state&lt;/span&gt;&lt;span&gt; NEW&lt;/span&gt;&lt;span&gt; -p&lt;/span&gt;&lt;span&gt; tcp&lt;/span&gt;&lt;span&gt; --dport&lt;/span&gt;&lt;span&gt; 875&lt;/span&gt;&lt;span&gt; -j&lt;/span&gt;&lt;span&gt; ACCEPT&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    iptables&lt;/span&gt;&lt;span&gt; -A&lt;/span&gt;&lt;span&gt; INPUT&lt;/span&gt;&lt;span&gt; -s&lt;/span&gt;&lt;span&gt; $NETWORK&lt;/span&gt;&lt;span&gt; -m&lt;/span&gt;&lt;span&gt; state&lt;/span&gt;&lt;span&gt; --state&lt;/span&gt;&lt;span&gt; NEW&lt;/span&gt;&lt;span&gt; -p&lt;/span&gt;&lt;span&gt; tcp&lt;/span&gt;&lt;span&gt; --dport&lt;/span&gt;&lt;span&gt; 662&lt;/span&gt;&lt;span&gt; -j&lt;/span&gt;&lt;span&gt; ACCEPT&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    iptables&lt;/span&gt;&lt;span&gt; -A&lt;/span&gt;&lt;span&gt; INPUT&lt;/span&gt;&lt;span&gt; -s&lt;/span&gt;&lt;span&gt; $NETWORK&lt;/span&gt;&lt;span&gt; -m&lt;/span&gt;&lt;span&gt; state&lt;/span&gt;&lt;span&gt; --state&lt;/span&gt;&lt;span&gt; NEW&lt;/span&gt;&lt;span&gt; -p&lt;/span&gt;&lt;span&gt; tcp&lt;/span&gt;&lt;span&gt; --dport&lt;/span&gt;&lt;span&gt; 8250&lt;/span&gt;&lt;span&gt; -j&lt;/span&gt;&lt;span&gt; ACCEPT&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    iptables&lt;/span&gt;&lt;span&gt; -A&lt;/span&gt;&lt;span&gt; INPUT&lt;/span&gt;&lt;span&gt; -s&lt;/span&gt;&lt;span&gt; $NETWORK&lt;/span&gt;&lt;span&gt; -m&lt;/span&gt;&lt;span&gt; state&lt;/span&gt;&lt;span&gt; --state&lt;/span&gt;&lt;span&gt; NEW&lt;/span&gt;&lt;span&gt; -p&lt;/span&gt;&lt;span&gt; tcp&lt;/span&gt;&lt;span&gt; --dport&lt;/span&gt;&lt;span&gt; 8080&lt;/span&gt;&lt;span&gt; -j&lt;/span&gt;&lt;span&gt; ACCEPT&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    iptables&lt;/span&gt;&lt;span&gt; -A&lt;/span&gt;&lt;span&gt; INPUT&lt;/span&gt;&lt;span&gt; -s&lt;/span&gt;&lt;span&gt; $NETWORK&lt;/span&gt;&lt;span&gt; -m&lt;/span&gt;&lt;span&gt; state&lt;/span&gt;&lt;span&gt; --state&lt;/span&gt;&lt;span&gt; NEW&lt;/span&gt;&lt;span&gt; -p&lt;/span&gt;&lt;span&gt; tcp&lt;/span&gt;&lt;span&gt; --dport&lt;/span&gt;&lt;span&gt; 9090&lt;/span&gt;&lt;span&gt; -j&lt;/span&gt;&lt;span&gt; ACCEPT&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    iptables&lt;/span&gt;&lt;span&gt; -A&lt;/span&gt;&lt;span&gt; INPUT&lt;/span&gt;&lt;span&gt; -s&lt;/span&gt;&lt;span&gt; $NETWORK&lt;/span&gt;&lt;span&gt; -m&lt;/span&gt;&lt;span&gt; state&lt;/span&gt;&lt;span&gt; --state&lt;/span&gt;&lt;span&gt; NEW&lt;/span&gt;&lt;span&gt; -p&lt;/span&gt;&lt;span&gt; tcp&lt;/span&gt;&lt;span&gt; --dport&lt;/span&gt;&lt;span&gt; 16514&lt;/span&gt;&lt;span&gt; -j&lt;/span&gt;&lt;span&gt; ACCEPT&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    apt-get&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; iptables-persistent&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You must check and disable apparmour:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;# Disable apparmour on libvirtd&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;ln&lt;/span&gt;&lt;span&gt; -s&lt;/span&gt;&lt;span&gt; /etc/apparmor.d/usr.sbin.libvirtd&lt;/span&gt;&lt;span&gt; /etc/apparmor.d/disable/&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;ln&lt;/span&gt;&lt;span&gt; -s&lt;/span&gt;&lt;span&gt; /etc/apparmor.d/usr.lib.libvirt.virt-aa-helper&lt;/span&gt;&lt;span&gt; /etc/apparmor.d/disable/&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;apparmor_parser&lt;/span&gt;&lt;span&gt; -R&lt;/span&gt;&lt;span&gt; /etc/apparmor.d/usr.sbin.libvirtd&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;apparmor_parser&lt;/span&gt;&lt;span&gt; -R&lt;/span&gt;&lt;span&gt; /etc/apparmor.d/usr.lib.libvirt.virt-aa-helper&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div&gt;&lt;h2 id=&quot;start-control-plane&quot;&gt;Start Control Plane&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;Start your cloud management control plane by setting up the CloudStack
+management server:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;cloudstack-setup-management&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;systemctl&lt;/span&gt;&lt;span&gt; status&lt;/span&gt;&lt;span&gt; cloudstack-management&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;tail&lt;/span&gt;&lt;span&gt; -f&lt;/span&gt;&lt;span&gt; /var/log/cloudstack/management/management-server.log&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;After the CloudStack management server is up, log into the management server using the default
+credentials (username &lt;code dir=&quot;auto&quot;&gt;admin&lt;/code&gt; and password &lt;code dir=&quot;auto&quot;&gt;password&lt;/code&gt;) on the URL:&lt;/p&gt;
+&lt;span&gt;http://`192.168.1.10(i.e. the cloudbr0-IP)`:8080/client&lt;/span&gt;
+&lt;img src=&quot;https://scaleninja.com/_astro/login.DWiDgKZD.png&quot; width=&quot;769&quot; height=&quot;368&quot; alt=&quot;CloudStack Login Page&quot;&gt;
+&lt;aside aria-label=&quot;Tip&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Tip&lt;/p&gt;&lt;div&gt;&lt;p&gt;Along with the UI, CloudStack’s official CLI &lt;code dir=&quot;auto&quot;&gt;CloudMonkey&lt;/code&gt; or &lt;code dir=&quot;auto&quot;&gt;cmk&lt;/code&gt; can be used
+to interact with the management server control plane. Learn more here:
+&lt;a href=&quot;https://github.com/apache/cloudstack-cloudmonkey/wiki/Getting-Started&quot;&gt;https://github.com/apache/cloudstack-cloudmonkey/wiki/Getting-Started&lt;/a&gt;&lt;/p&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;div&gt;&lt;h2 id=&quot;deploy-your-private-cloud&quot;&gt;Deploy Your Private Cloud&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;The following is an example of how you can setup an advanced zone (without security groups)
+in a typical (home/private) 192.168.1.0/24 network.&lt;/p&gt;
+&lt;div&gt;&lt;h3 id=&quot;deploy-datacenter&quot;&gt;Deploy DataCenter&lt;/h3&gt;&lt;/div&gt;
+
+&lt;ol role=&quot;list&quot;&gt;
+&lt;li&gt;
+&lt;p&gt;Create Zone:&lt;/p&gt;
+&lt;p&gt;Go to Infrastructure &gt; Zone and click on add zone button, select advanced zone and provide following configuration:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;Name - any name&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Public DNS 1 - 8.8.8.8&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Internal DNS1 - 192.168.1.1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Hypervisor - KVM&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;img src=&quot;https://scaleninja.com/_astro/addzone.C0tWGBOu.png&quot; width=&quot;1025&quot; height=&quot;533&quot; alt=&quot;CloudStack Zone Wizard&quot;&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Setup Network&lt;/p&gt;
+&lt;p&gt;Use the default, which is &lt;code dir=&quot;auto&quot;&gt;VLAN&lt;/code&gt; isolation method on a single physical nic (on the host) that will carry all traffic types (management, public, guest etc).&lt;/p&gt;
+&lt;p&gt;Note: If you’ve &lt;code dir=&quot;auto&quot;&gt;iproute2&lt;/code&gt; installed and host’s physical NIC MTUs configured, you can used &lt;code dir=&quot;auto&quot;&gt;VXLAN&lt;/code&gt; as well.&lt;/p&gt;
+&lt;p&gt;Public traffic configuration:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;Gateway - 192.168.1.1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Netmask - 255.255.255.0&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;VLAN/VNI - (leave blank for vlan://untagged or in case of VXLAN use vxlan://untagged)&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Start IP - 192.168.1.20&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;End IP - 192.168.1.50&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Pod Configuration:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;Name - any name&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Gateway - 192.168.1.1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Start/end reserved system IPs - 192.168.1.51 - 192.168.1.80&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Guest traffic:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;VLAN/VNI range: 700-900&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Create a cluster with following:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;Name - any name&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Hypervisor - Choose KVM&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Add your default/first host:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;Hostname - 192.168.1.10&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Username - root&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Password - &amp;#x3C;password for root user, or leave blank to add by public key&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Note: &lt;code dir=&quot;auto&quot;&gt;root&lt;/code&gt; user ssh-access is disabled by default, &lt;a href=&quot;https://askubuntu.com/questions/469143/how-to-enable-ssh-root-access-on-ubuntu-14-04&quot;&gt;please enable
+it&lt;/a&gt;.
+The recommended approach is to add the KVM host using ssh public-key based
+access, add the management server SSH public key which is usually at
+&lt;code dir=&quot;auto&quot;&gt;/var/cloudstack/management/.ssh/id_rsa.pub&lt;/code&gt; to the root user of the KVM host(s)
+at &lt;code dir=&quot;auto&quot;&gt;/root/.ssh/authorized_keys&lt;/code&gt;.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Add primary storage:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;Name - any name&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Scope - zone-wide&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Protocol - NFS&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Server - 192.168.1.10&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Path - /export/primary&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Add secondary storage:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;Provider - NFS&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Name - any name&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Server - 192.168.1.10&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Path - /export/secondary&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Next, click &lt;code dir=&quot;auto&quot;&gt;Launch Zone&lt;/code&gt; which will perform following actions:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;Create Zone&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Create Physical networks:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;  - Add various traffic types to the physical network&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;  - Update and enable the physical network&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;  - Configure, enable and update various network provider and elements such as the virtual network element&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Create Pod&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Configure public traffic&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Configure guest traffic (vlan range for physical network)&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Create Cluster&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Add host&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Create primary storage (also mounts it on the KVM host)&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Create secondary storage&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Complete zone creation&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Enable Zone&lt;/p&gt;
+&lt;p&gt;Finally, confirm and enable the zone. Wait for the system VMs to come up
+under Infrastructure -&gt; System VMs, then you can proceed using your IaaS cloud.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div&gt;&lt;h3 id=&quot;register-templates&quot;&gt;Register Templates&lt;/h3&gt;&lt;/div&gt;
+&lt;p&gt;You can register publicly available cloud-init enabled guest templates such as:&lt;/p&gt;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th align=&quot;left&quot;&gt;Distro&lt;/th&gt;&lt;th align=&quot;left&quot;&gt;x86_64&lt;/th&gt;&lt;th align=&quot;left&quot;&gt;ARM64&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td align=&quot;left&quot;&gt;Ubuntu 24.04&lt;/td&gt;&lt;td align=&quot;left&quot;&gt;&lt;a href=&quot;https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-amd64.img&quot;&gt;https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-amd64.img&lt;/a&gt;&lt;/td&gt;&lt;td align=&quot;left&quot;&gt;&lt;a href=&quot;https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-arm64.img&quot;&gt;https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-arm64.img&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&quot;left&quot;&gt;Ubuntu 22.04&lt;/td&gt;&lt;td align=&quot;left&quot;&gt;&lt;a href=&quot;https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img&quot;&gt;https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img&lt;/a&gt;&lt;/td&gt;&lt;td align=&quot;left&quot;&gt;&lt;a href=&quot;https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-arm64.img&quot;&gt;https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-arm64.img&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&quot;left&quot;&gt;Debian 12&lt;/td&gt;&lt;td align=&quot;left&quot;&gt;&lt;a href=&quot;https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2&quot;&gt;https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2&lt;/a&gt;&lt;/td&gt;&lt;td align=&quot;left&quot;&gt;&lt;a href=&quot;https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-arm64.qcow2&quot;&gt;https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-arm64.qcow2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&quot;left&quot;&gt;AlmaLinux 9&lt;/td&gt;&lt;td align=&quot;left&quot;&gt;&lt;a href=&quot;https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2&quot;&gt;https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2&lt;/a&gt;&lt;/td&gt;&lt;td align=&quot;left&quot;&gt;&lt;a href=&quot;https://repo.almalinux.org/almalinux/9/cloud/aarch64/images/AlmaLinux-9-GenericCloud-latest.aarch64.qcow2&quot;&gt;https://repo.almalinux.org/almalinux/9/cloud/aarch64/images/AlmaLinux-9-GenericCloud-latest.aarch64.qcow2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&quot;left&quot;&gt;OpenSUSE 15&lt;/td&gt;&lt;td align=&quot;left&quot;&gt;&lt;a href=&quot;https://download.opensuse.org/distribution/leap/15.5/appliances/openSUSE-Leap-15.5-Minimal-VM.x86_64-Cloud.qcow2&quot;&gt;https://download.opensuse.org/distribution/leap/15.5/appliances/openSUSE-Leap-15.5-Minimal-VM.x86_64-Cloud.qcow2&lt;/a&gt;&lt;/td&gt;&lt;td align=&quot;left&quot;&gt;&lt;a href=&quot;https://download.opensuse.org/distribution/leap/15.5/appliances/openSUSE-Leap-15.5-Minimal-VM.aarch64-Cloud.qcow2&quot;&gt;https://download.opensuse.org/distribution/leap/15.5/appliances/openSUSE-Leap-15.5-Minimal-VM.aarch64-Cloud.qcow2&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;
+&lt;aside aria-label=&quot;Tip&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Tip&lt;/p&gt;&lt;div&gt;&lt;p&gt;Before deploying instances using cloud-init based templates, don’t forget to
+register your SSH public key in your CloudStack account which you can do so
+using API/CLI or using UI under &lt;code dir=&quot;auto&quot;&gt;Compute &gt; SSH Key Pairs&lt;/code&gt;.&lt;/p&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;div&gt;&lt;h3 id=&quot;add-networks&quot;&gt;Add Networks&lt;/h3&gt;&lt;/div&gt;
+&lt;p&gt;With the configured and deployed zone, once System VMs are up and running, you
+can create &lt;a href=&quot;https://docs.cloudstack.apache.org/en/latest/adminguide/networking.html&quot;&gt;isolated network or VPC for your
+account&lt;/a&gt;
+for the built-in admin account or any new user account you may created that
+can be later used to deploy instances.&lt;/p&gt;
+&lt;p&gt;For simplicity, you may also create a shared network in the unused IP address
+space of your home/private network. For example, create shared network using
+API/CLI or UI under &lt;code dir=&quot;auto&quot;&gt;Network &gt; Guest Networks &gt; Add Network &gt; Shared&lt;/code&gt; using:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;Physical Network - cloudbr0&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;VLAN/VNI - untagged&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;IPv4 Gateway - 192.168.1.1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;IPv4 Netmask - 255.255.255.0&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;IPv4 Start IP - 192.168.1.81&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;IPv4 End IP - 192.168.1.100&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;DNS1 - 192.168.1.1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;DNS2 - 1.1.1.1&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div&gt;&lt;h3 id=&quot;deploying-instance&quot;&gt;Deploying Instance&lt;/h3&gt;&lt;/div&gt;
+&lt;p&gt;In the UI, an instance can be created using the top navigation “Create” button
+or via &lt;code dir=&quot;auto&quot;&gt;Compute &gt; Instances &gt; Add Instance&lt;/code&gt; where you can specify a minimum of:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;Zone - select the zone&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Arch - select your arch (x86_64 or ARM64)&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Image - select the registed template&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Compute Offering - select the offering (new ones can be created later on)&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Networks - select one or more network where you want to deploy this instance&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;SSH key pairs - select one or more ssh public key pairs that you may have added&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;Name - (optional) name of the instance&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;… and hit &lt;code dir=&quot;auto&quot;&gt;Launch Instance&lt;/code&gt; to create your instance!&lt;/p&gt;
+&lt;div&gt;&lt;h3 id=&quot;integrations&quot;&gt;Integrations&lt;/h3&gt;&lt;/div&gt;
+&lt;p&gt;CloudStack has several integrations, the following is a list of some of the
+popular or official ones:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CLI: &lt;a href=&quot;https://github.com/apache/cloudstack-cloudmonkey&quot;&gt;https://github.com/apache/cloudstack-cloudmonkey&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Terraform Provider: &lt;a href=&quot;https://github.com/apache/cloudstack-terraform-provider&quot;&gt;https://github.com/apache/cloudstack-terraform-provider&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Ansible: &lt;a href=&quot;https://github.com/ngine-io/ansible-collection-cloudstack&quot;&gt;https://github.com/ngine-io/ansible-collection-cloudstack&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Kubernetes integration: &lt;a href=&quot;https://github.com/apache/cloudstack-kubernetes-provider&quot;&gt;https://github.com/apache/cloudstack-kubernetes-provider&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Kubernetes Cluster API Provider: &lt;a href=&quot;https://github.com/kubernetes-sigs/cluster-api-provider-cloudstack&quot;&gt;https://github.com/kubernetes-sigs/cluster-api-provider-cloudstack&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Go SDK: &lt;a href=&quot;https://github.com/apache/cloudstack-go&quot;&gt;https://github.com/apache/cloudstack-go&lt;/a&gt; (for developers)&lt;/li&gt;
+&lt;li&gt;Benchmarking tool: &lt;a href=&quot;https://github.com/apache/cloudstack-csbench&quot;&gt;https://github.com/apache/cloudstack-csbench&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;More here: &lt;a href=&quot;https://cloudstack.apache.org/integrations&quot;&gt;https://cloudstack.apache.org/integrations&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div&gt;&lt;h2 id=&quot;where-to-go-next&quot;&gt;Where to go next?&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;If you’re stuck on to something and have questions, then:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Join and ask on the CloudStack &lt;code dir=&quot;auto&quot;&gt;users@&lt;/code&gt; mailing list: &lt;a href=&quot;https://cloudstack.apache.org/mailing-lists&quot;&gt;https://cloudstack.apache.org/mailing-lists&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Start a discussion sharing the details of your problem: &lt;a href=&quot;https://github.com/apache/cloudstack/discussions&quot;&gt;https://github.com/apache/cloudstack/discussions&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Further reading:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ShapeBlue’s Apache CloudStack PoC Guide: &lt;a href=&quot;https://www.shapeblue.com/apache-cloudstack-poc-guide/&quot;&gt;https://www.shapeblue.com/apache-cloudstack-poc-guide&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;ShapeBlue’s Apache CloudStack Quick Build Guide: &lt;a href=&quot;https://www.shapeblue.com/cloudstack-iaas-quick-build-guide/&quot;&gt;https://www.shapeblue.com/cloudstack-iaas-quick-build-guide/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;CloudStack Networking 101: &lt;a href=&quot;https://www.shapeblue.com/a-beginners-guide-to-cloudstack-networking/&quot;&gt;https://www.shapeblue.com/a-beginners-guide-to-cloudstack-networking/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;CloudStack &lt;a href=&quot;https://www.youtube.com/watch?v=XQwqqcPWDbE&quot;&gt;Networking Models - A Step-by-step Guide - Part 1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;CloudStack &lt;a href=&quot;https://www.youtube.com/watch?v=hSfl2QfSJMg&quot;&gt;Networking Models - A Step-by-step Guide - Part 2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Project Documentation: &lt;a href=&quot;https://docs.cloudstack.apache.org/&quot;&gt;https://docs.cloudstack.apache.org/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div&gt;&lt;h2 id=&quot;comments&quot;&gt;Comments&lt;/h2&gt;&lt;/div&gt;
+</content:encoded><category>guide</category><category>cloudstack</category></item><item><title>Ceph Storage with CloudStack on Ubuntu/KVM</title><link>https://scaleninja.com/blog/ceph/</link><guid isPermaLink="true">https://scaleninja.com/blog/ceph/</guid><pubDate>Sat, 04 Jan 2025 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;In this post, we look at how to deploy a Ceph cluster (v18 +) and then use that
+with Apache CloudStack and KVM on Ubuntu 22.04/24.04.&lt;/p&gt;
+&lt;aside aria-label=&quot;Note&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Note&lt;/p&gt;&lt;div&gt;&lt;p&gt;Refer to &lt;a href=&quot;https://docs.ceph.com/en/reef/install&quot;&gt;Ceph docs&lt;/a&gt; as necessary. If
+you’re new to Ceph, you can &lt;a href=&quot;https://docs.ceph.com/en/reef/start/intro/&quot;&gt;start
+here&lt;/a&gt;, or deep dive into the
+&lt;a href=&quot;https://docs.ceph.com/en/pacific/architecture/&quot;&gt;architecture&lt;/a&gt;. This guide may
+get outdated in future.&lt;/p&gt;&lt;/div&gt;&lt;/aside&gt;
+
+&lt;div&gt;&lt;h2 id=&quot;host-configuration&quot;&gt;Host Configuration&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;In the this Ceph cluster, we’ve three hosts/nodes that serve as both &lt;code dir=&quot;auto&quot;&gt;mon&lt;/code&gt; and
+&lt;code dir=&quot;auto&quot;&gt;osd&lt;/code&gt; nodes, and one admin node that is used to server as &lt;code dir=&quot;auto&quot;&gt;mgr&lt;/code&gt; and run the Ceph
+dashboard.&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    192.168.1.10 mgmt    # Admin/mgr and dashboard&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    192.168.1.11 kvm1    # mon and osd&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    192.168.1.12 kvm2    # mon and osd&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    192.168.1.13 kvm3    # mon and osd&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside aria-label=&quot;Note&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Note&lt;/p&gt;&lt;div&gt;&lt;p&gt;Replace the names with hostnames of your hosts.&lt;/p&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;p&gt;Configure SSH config on admin or management node:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    tee -a ~/.ssh/config&amp;#x3C;&amp;#x3C;EOF&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    Host *&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;        UserKnownHostsFile /dev/null&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;        StrictHostKeyChecking no&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;        IdentitiesOnly yes&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;        ConnectTimeout 0&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;        ServerAliveInterval 300&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    EOF&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div&gt;&lt;h3 id=&quot;install-cephadm&quot;&gt;Install &lt;code dir=&quot;auto&quot;&gt;cephadm&lt;/code&gt;&lt;/h3&gt;&lt;/div&gt;
+&lt;p&gt;Newer Ceph versions recommend using &lt;code dir=&quot;auto&quot;&gt;cephadm&lt;/code&gt; to install and manage Ceph cluster
+using containers and systemd.
+&lt;a href=&quot;https://docs.ceph.com/en/reef/cephadm&quot;&gt;Cephadm&lt;/a&gt; requirements include
+python3, systemd, podman or docker, ntp and lvm2. Let’s install them on all
+nodes:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    sudo&lt;/span&gt;&lt;span&gt; apt-get&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; -y&lt;/span&gt;&lt;span&gt; python3&lt;/span&gt;&lt;span&gt; ntp&lt;/span&gt;&lt;span&gt; lvm2&lt;/span&gt;&lt;span&gt; libvirt-daemon-driver-storage-rbd&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Install podman:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    sudo&lt;/span&gt;&lt;span&gt; apt-get&lt;/span&gt;&lt;span&gt; update&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    sudo&lt;/span&gt;&lt;span&gt; apt-get&lt;/span&gt;&lt;span&gt; -y&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; podman&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Finally, configure the ceph repository (reef/v18 in this example) and install
+&lt;code dir=&quot;auto&quot;&gt;cephadm&lt;/code&gt; and &lt;code dir=&quot;auto&quot;&gt;ceph-common&lt;/code&gt; on all the nodes:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    wget&lt;/span&gt;&lt;span&gt; https://download.ceph.com/keys/release.asc&lt;/span&gt;&lt;span&gt; -O&lt;/span&gt;&lt;span&gt; /etc/apt/keyrings/ceph.asc&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    wget&lt;/span&gt;&lt;span&gt; -q&lt;/span&gt;&lt;span&gt; -O-&lt;/span&gt;&lt;span&gt; &apos;https://download.ceph.com/keys/release.asc&apos;&lt;/span&gt;&lt;span&gt; |&lt;/span&gt;&lt;span&gt; sudo&lt;/span&gt;&lt;span&gt; apt-key&lt;/span&gt;&lt;span&gt; add&lt;/span&gt;&lt;span&gt; -&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    echo&lt;/span&gt;&lt;span&gt; &quot;deb [signed-by=/etc/apt/keyrings/ceph.asc] http://download.ceph.com/debian-reef/ $(&lt;/span&gt;&lt;span&gt;lsb_release&lt;/span&gt;&lt;span&gt; -sc&lt;/span&gt;&lt;span&gt;) main&quot;&lt;/span&gt;&lt;span&gt; |&lt;/span&gt;&lt;span&gt; sudo&lt;/span&gt;&lt;span&gt; tee&lt;/span&gt;&lt;span&gt; /etc/apt/sources.list.d/ceph.list&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    apt-get&lt;/span&gt;&lt;span&gt; update&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    apt-get&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; -y&lt;/span&gt;&lt;span&gt; cephadm&lt;/span&gt;&lt;span&gt; ceph-common&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;If you install &lt;code dir=&quot;auto&quot;&gt;cephadm&lt;/code&gt; using wget, you can add specific release repos using:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    cephadm&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; ceph-common&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div&gt;&lt;h2 id=&quot;bootstrap-cluster&quot;&gt;Bootstrap Cluster&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;Bootstrap Ceph cluster by running the following only on the admin node
+(192.168.1.10 in the example):&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    cephadm&lt;/span&gt;&lt;span&gt; bootstrap&lt;/span&gt;&lt;span&gt; --mon-ip&lt;/span&gt;&lt;span&gt; 192.168.1.10&lt;/span&gt;&lt;span&gt; \&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;                      --initial-dashboard-user&lt;/span&gt;&lt;span&gt; admin&lt;/span&gt;&lt;span&gt; \&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;                      --initial-dashboard-password&lt;/span&gt;&lt;span&gt; Passw0rdHere&lt;/span&gt;&lt;span&gt; \&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;                      --allow-fqdn-hostname&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;On successful run, the above command will bootstrap a Ceph cluster with ceph
+config in &lt;code dir=&quot;auto&quot;&gt;/etc/ceph/ceph.conf&lt;/code&gt; and SSH public key &lt;code dir=&quot;auto&quot;&gt;/etc/ceph/ceph.pub&lt;/code&gt; using
+container images that are orchestrated by podman.&lt;/p&gt;
+&lt;p&gt;The dashboard will be available on the mon IP &lt;a href=&quot;https://192.168.1.10:8443/&quot;&gt;https://192.168.1.10:8443/&lt;/a&gt; which
+you can log in using the user &lt;code dir=&quot;auto&quot;&gt;admin&lt;/code&gt; and password as provided in the command
+(&lt;code dir=&quot;auto&quot;&gt;Passw0rdHere&lt;/code&gt; in the example above).&lt;/p&gt;
+&lt;p&gt;Copy the ceph SSH public key across other nodes (from the admin/mgmt node):&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    ssh-copy-id&lt;/span&gt;&lt;span&gt; -f&lt;/span&gt;&lt;span&gt; -i&lt;/span&gt;&lt;span&gt; /etc/ceph/ceph.pub&lt;/span&gt;&lt;span&gt; root@192.168.1.11&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ssh-copy-id&lt;/span&gt;&lt;span&gt; -f&lt;/span&gt;&lt;span&gt; -i&lt;/span&gt;&lt;span&gt; /etc/ceph/ceph.pub&lt;/span&gt;&lt;span&gt; root@192.168.1.12&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ssh-copy-id&lt;/span&gt;&lt;span&gt; -f&lt;/span&gt;&lt;span&gt; -i&lt;/span&gt;&lt;span&gt; /etc/ceph/ceph.pub&lt;/span&gt;&lt;span&gt; root@192.168.1.13&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div&gt;&lt;h3 id=&quot;add-hosts&quot;&gt;Add hosts&lt;/h3&gt;&lt;/div&gt;
+&lt;p&gt;Add hosts after disabling automatic &lt;code dir=&quot;auto&quot;&gt;mon&lt;/code&gt; deployment:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; orch&lt;/span&gt;&lt;span&gt; apply&lt;/span&gt;&lt;span&gt; mon&lt;/span&gt;&lt;span&gt; --unmanaged&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; orch&lt;/span&gt;&lt;span&gt; host&lt;/span&gt;&lt;span&gt; add&lt;/span&gt;&lt;span&gt; kvm1&lt;/span&gt;&lt;span&gt; 192.168.1.11&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; orch&lt;/span&gt;&lt;span&gt; host&lt;/span&gt;&lt;span&gt; add&lt;/span&gt;&lt;span&gt; kvm2&lt;/span&gt;&lt;span&gt; 192.168.1.12&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; orch&lt;/span&gt;&lt;span&gt; host&lt;/span&gt;&lt;span&gt; add&lt;/span&gt;&lt;span&gt; kvm3&lt;/span&gt;&lt;span&gt; 192.168.1.13&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div&gt;&lt;h3 id=&quot;add-monitors&quot;&gt;Add Monitors&lt;/h3&gt;&lt;/div&gt;
+&lt;p&gt;Read more about &lt;a href=&quot;https://docs.ceph.com/en/pacific/cephadm/services/mon/&quot;&gt;monitors here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Optional, specify monitor traffic/CIDR:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; config&lt;/span&gt;&lt;span&gt; set&lt;/span&gt;&lt;span&gt; mon&lt;/span&gt;&lt;span&gt; public_network&lt;/span&gt;&lt;span&gt; 192.168.1.0/24&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Add mons:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; orch&lt;/span&gt;&lt;span&gt; daemon&lt;/span&gt;&lt;span&gt; add&lt;/span&gt;&lt;span&gt; mon&lt;/span&gt;&lt;span&gt; kvm1:192.168.1.11&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; orch&lt;/span&gt;&lt;span&gt; daemon&lt;/span&gt;&lt;span&gt; add&lt;/span&gt;&lt;span&gt; mon&lt;/span&gt;&lt;span&gt; kvm2:192.168.1.12&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; orch&lt;/span&gt;&lt;span&gt; daemon&lt;/span&gt;&lt;span&gt; add&lt;/span&gt;&lt;span&gt; mon&lt;/span&gt;&lt;span&gt; kvm3:192.168.1.13&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Now, enable automatic placement of daemons:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; orch&lt;/span&gt;&lt;span&gt; apply&lt;/span&gt;&lt;span&gt; mon&lt;/span&gt;&lt;span&gt; --placement=&lt;/span&gt;&lt;span&gt;&quot;kvm1,kvm2,kvm3&quot;&lt;/span&gt;&lt;span&gt; --dry-run&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; orch&lt;/span&gt;&lt;span&gt; apply&lt;/span&gt;&lt;span&gt; mon&lt;/span&gt;&lt;span&gt; --placement=&lt;/span&gt;&lt;span&gt;&quot;kvm1,kvm2,kvm3&quot;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div&gt;&lt;h3 id=&quot;add-osds&quot;&gt;Add OSDs&lt;/h3&gt;&lt;/div&gt;
+&lt;p&gt;Read more about &lt;a href=&quot;https://docs.ceph.com/en/reef/cephadm/services/osd/&quot;&gt;OSD
+here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;List available physical disks of the added hosts:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; orch&lt;/span&gt;&lt;span&gt; device&lt;/span&gt;&lt;span&gt; ls&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Then, use the syntax to specify the host and device you want to add as OSD (for ex. if the device is /dev/sdb):&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;     ceph&lt;/span&gt;&lt;span&gt; orch&lt;/span&gt;&lt;span&gt; daemon&lt;/span&gt;&lt;span&gt; add&lt;/span&gt;&lt;span&gt; osd&lt;/span&gt;&lt;span&gt; kvm1:/dev/sdb&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;     ceph&lt;/span&gt;&lt;span&gt; orch&lt;/span&gt;&lt;span&gt; daemon&lt;/span&gt;&lt;span&gt; add&lt;/span&gt;&lt;span&gt; osd&lt;/span&gt;&lt;span&gt; kvm2:/dev/sdb&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;     ceph&lt;/span&gt;&lt;span&gt; orch&lt;/span&gt;&lt;span&gt; daemon&lt;/span&gt;&lt;span&gt; add&lt;/span&gt;&lt;span&gt; osd&lt;/span&gt;&lt;span&gt; kvm3:/dev/sdb&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Finally, you may check your osds across hosts with:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; osd&lt;/span&gt;&lt;span&gt; tree&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside aria-label=&quot;Tip&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Tip&lt;/p&gt;&lt;div&gt;&lt;p&gt;Optional: Additional admin host&lt;/p&gt;&lt;p&gt;Hosts with &lt;code dir=&quot;auto&quot;&gt;_admin&lt;/code&gt; label will have ceph.conf and client.admin keyring copied to
+&lt;code dir=&quot;auto&quot;&gt;/etc/ceph&lt;/code&gt; that allows hosts access the &lt;code dir=&quot;auto&quot;&gt;ceph&lt;/code&gt; CLI. For example, add the label
+as:&lt;/p&gt;&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; orch&lt;/span&gt;&lt;span&gt; host&lt;/span&gt;&lt;span&gt; label&lt;/span&gt;&lt;span&gt; add&lt;/span&gt;&lt;span&gt; kvm1&lt;/span&gt;&lt;span&gt; _admin&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;div&gt;&lt;h2 id=&quot;disable-ssl-on-dashboard&quot;&gt;Disable SSL on Dashboard&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;This is optional and more useful in test/homelab environments. To disable SSL on
+Ceph Dashboard when, for example, using inside an internal network:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; config&lt;/span&gt;&lt;span&gt; set&lt;/span&gt;&lt;span&gt; mgr&lt;/span&gt;&lt;span&gt; mgr/dashboard/ssl&lt;/span&gt;&lt;span&gt; false&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; config&lt;/span&gt;&lt;span&gt; set&lt;/span&gt;&lt;span&gt; mgr&lt;/span&gt;&lt;span&gt; mgr/dashboard/server_addr&lt;/span&gt;&lt;span&gt; 192.168.1.10&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; config&lt;/span&gt;&lt;span&gt; set&lt;/span&gt;&lt;span&gt; mgr&lt;/span&gt;&lt;span&gt; mgr/dashboard/server_port&lt;/span&gt;&lt;span&gt; 8000&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; dashboard&lt;/span&gt;&lt;span&gt; set-grafana-api-ssl-verify&lt;/span&gt;&lt;span&gt; False&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; mgr&lt;/span&gt;&lt;span&gt; module&lt;/span&gt;&lt;span&gt; disable&lt;/span&gt;&lt;span&gt; dashboard&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; mgr&lt;/span&gt;&lt;span&gt; module&lt;/span&gt;&lt;span&gt; enable&lt;/span&gt;&lt;span&gt; dashboard&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Now, the dashboard is accessible over &lt;a href=&quot;http://192.168.1.10:8000/&quot;&gt;http://192.168.1.10:8000/&lt;/a&gt;&lt;/p&gt;
+&lt;div&gt;&lt;h2 id=&quot;tuning-ceph-cluster&quot;&gt;Tuning Ceph Cluster&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;Refer &lt;a href=&quot;https://docs.ceph.com/en/latest/start/hardware-recommendations/#memory&quot;&gt;https://docs.ceph.com/en/latest/start/hardware-recommendations/#memory&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;For example, configure per OSD memory limit and MDS cache memory limit to 2GB each (or as required):&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; config&lt;/span&gt;&lt;span&gt; set&lt;/span&gt;&lt;span&gt; osd&lt;/span&gt;&lt;span&gt; osd_memory_target&lt;/span&gt;&lt;span&gt; 2G&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; config&lt;/span&gt;&lt;span&gt; set&lt;/span&gt;&lt;span&gt; mds&lt;/span&gt;&lt;span&gt; mds_cache_memory_limit&lt;/span&gt;&lt;span&gt; 2G&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You confirm the value using the &lt;code dir=&quot;auto&quot;&gt;ceph config get &amp;#x3C;key&gt; &amp;#x3C;config&gt;&lt;/code&gt; command, for example:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; config&lt;/span&gt;&lt;span&gt; get&lt;/span&gt;&lt;span&gt; osd&lt;/span&gt;&lt;span&gt; osd_memory_target&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; config&lt;/span&gt;&lt;span&gt; get&lt;/span&gt;&lt;span&gt; mds&lt;/span&gt;&lt;span&gt; mds_cache_memory_limit&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; config&lt;/span&gt;&lt;span&gt; get&lt;/span&gt;&lt;span&gt; mon&lt;/span&gt;&lt;span&gt; public_network&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div&gt;&lt;h2 id=&quot;ceph-and-cloudstack&quot;&gt;Ceph and CloudStack&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;Check Ceph status using the following command (or using the Ceph dashboard):&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; -s&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;img src=&quot;https://scaleninja.com/_astro/dashboard.CXG2k7wW.png&quot; width=&quot;3716&quot; height=&quot;1894&quot; alt=&quot;Ceph Dashboard&quot;&gt;
+&lt;aside aria-label=&quot;Note&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Note&lt;/p&gt;&lt;div&gt;&lt;p&gt;It appears there is a Ceph limitation (at least seen in newer versions) which causes Ceph storage to not add in CloudStack.
+This was &lt;a href=&quot;https://github.com/apache/cloudstack/issues/5741#issuecomment-990669423&quot;&gt;reported and discussed in an issue&lt;/a&gt; and
+the workaround seems to set the following configuration in ceph before adding the Ceph pool(s) to CloudStack:&lt;/p&gt;&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;ceph&lt;/span&gt;&lt;span&gt; config&lt;/span&gt;&lt;span&gt; set&lt;/span&gt;&lt;span&gt; mon&lt;/span&gt;&lt;span&gt; auth_expose_insecure_global_id_reclaim&lt;/span&gt;&lt;span&gt; false&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;ceph&lt;/span&gt;&lt;span&gt; config&lt;/span&gt;&lt;span&gt; set&lt;/span&gt;&lt;span&gt; mon&lt;/span&gt;&lt;span&gt; mon_warn_on_insecure_global_id_reclaim_allowed&lt;/span&gt;&lt;span&gt; false&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;ceph&lt;/span&gt;&lt;span&gt; config&lt;/span&gt;&lt;span&gt; set&lt;/span&gt;&lt;span&gt; mon&lt;/span&gt;&lt;span&gt; auth_allow_insecure_global_id_reclaim&lt;/span&gt;&lt;span&gt; false&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;ceph&lt;/span&gt;&lt;span&gt; orch&lt;/span&gt;&lt;span&gt; restart&lt;/span&gt;&lt;span&gt; mon&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;p&gt;Once you’ve ensure your Ceph cluster is up and healthy, let’s create a new Ceph
+pool and add to CloudStack:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; osd&lt;/span&gt;&lt;span&gt; pool&lt;/span&gt;&lt;span&gt; create&lt;/span&gt;&lt;span&gt; cloudstack&lt;/span&gt;&lt;span&gt; 64&lt;/span&gt;&lt;span&gt; replicated&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; osd&lt;/span&gt;&lt;span&gt; pool&lt;/span&gt;&lt;span&gt; set&lt;/span&gt;&lt;span&gt; cloudstack&lt;/span&gt;&lt;span&gt; size&lt;/span&gt;&lt;span&gt; 3&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    rbd&lt;/span&gt;&lt;span&gt; pool&lt;/span&gt;&lt;span&gt; init&lt;/span&gt;&lt;span&gt; cloudstack&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Next, create a dedicated auth key for this pool:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    ceph&lt;/span&gt;&lt;span&gt; auth&lt;/span&gt;&lt;span&gt; get-or-create&lt;/span&gt;&lt;span&gt; client.cloudstack&lt;/span&gt;&lt;span&gt; mon&lt;/span&gt;&lt;span&gt; &apos;profile rbd&apos;&lt;/span&gt;&lt;span&gt; osd&lt;/span&gt;&lt;span&gt; &apos;profile rbd pool=cloudstack&apos;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Finally, you can add this pool as a CloudStack zone-wide Ceph primary storage
+using the above credential as RADOS secret for the user &lt;code dir=&quot;auto&quot;&gt;cloudstack&lt;/code&gt; as well
+specify the monitor domain or IP with a storage tag. For example:&lt;/p&gt;
+&lt;img src=&quot;https://scaleninja.com/_astro/storage.CMhvr6Np.png&quot; width=&quot;2306&quot; height=&quot;2157&quot; alt=&quot;CloudStack and Ceph primary storage pool&quot;&gt;
+&lt;p&gt;Next, you can create specific compute and disk offering with the same storage
+tag so VM deployments would use your newly added Ceph storage pool.&lt;/p&gt;
+&lt;div&gt;&lt;h2 id=&quot;cephfs&quot;&gt;CephFS&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;&lt;a href=&quot;https://docs.ceph.com/en/pacific/cephfs/index.html&quot;&gt;CephFS&lt;/a&gt; is a
+POSIX-compliant file system over RADOS. I’ve started using CephFS as a
+distributed-shared directory for storing documents and photos which along with
+rsync allows me to keep all my home computers in sync with each other.&lt;/p&gt;
+&lt;p&gt;To create a CephFS (say with the name &lt;code dir=&quot;auto&quot;&gt;cephfs&lt;/code&gt;), simply run:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;     ceph&lt;/span&gt;&lt;span&gt; fs&lt;/span&gt;&lt;span&gt; volume&lt;/span&gt;&lt;span&gt; create&lt;/span&gt;&lt;span&gt; cephfs&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;That’s it!&lt;/p&gt;
+&lt;p&gt;Now to mount and use CephFS on your client/computer, you can either use Ceph
+FUSE or on Linux environment simply use the kernel based module. For that
+install &lt;code dir=&quot;auto&quot;&gt;ceph-common&lt;/code&gt;:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    sudo&lt;/span&gt;&lt;span&gt; apt-get&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; ceph-common&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Authorise client on the &lt;code dir=&quot;auto&quot;&gt;mon&lt;/code&gt; host and save output as config on the client host at
+&lt;code dir=&quot;auto&quot;&gt;/etc/ceph/ceph.client.rohit.keyring&lt;/code&gt; (replace &lt;code dir=&quot;auto&quot;&gt;rohit&lt;/code&gt; with username of your choice:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    sudo&lt;/span&gt;&lt;span&gt; ceph&lt;/span&gt;&lt;span&gt; fs&lt;/span&gt;&lt;span&gt; authorize&lt;/span&gt;&lt;span&gt; cephfs&lt;/span&gt;&lt;span&gt; client.rohit&lt;/span&gt;&lt;span&gt; /&lt;/span&gt;&lt;span&gt; rw&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Now, you can mount your CephFS named &lt;code dir=&quot;auto&quot;&gt;cephfs&lt;/code&gt; using (replace &lt;code dir=&quot;auto&quot;&gt;rohit&lt;/code&gt; with username of your choice:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    sudo&lt;/span&gt;&lt;span&gt; mount&lt;/span&gt;&lt;span&gt; -t&lt;/span&gt;&lt;span&gt; ceph&lt;/span&gt;&lt;span&gt; 192.168.1.11:6789:/&lt;/span&gt;&lt;span&gt; ceph&lt;/span&gt;&lt;span&gt; -o&lt;/span&gt;&lt;span&gt; name=rohit,secret=&lt;/span&gt;&lt;span&gt;&amp;#x3C;&lt;/span&gt;&lt;span&gt;password&lt;/span&gt;&lt;span&gt; secret&lt;/span&gt;&lt;span&gt; without&lt;/span&gt;&lt;span&gt; quote&lt;/span&gt;&lt;span&gt;s&lt;/span&gt;&lt;span&gt;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;aside aria-label=&quot;Note&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Note&lt;/p&gt;&lt;div&gt;&lt;p&gt;You can create dedicated client for use with your CephFS as noted above.&lt;/p&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;aside aria-label=&quot;Tip&quot;&gt;&lt;p aria-hidden=&quot;true&quot;&gt;Tip&lt;/p&gt;&lt;div&gt;&lt;p&gt;To make this mountable using &lt;code dir=&quot;auto&quot;&gt;mount -a&lt;/code&gt; or upon your Linux machine boot, you can put
+this in your &lt;code dir=&quot;auto&quot;&gt;/etc/fstab&lt;/code&gt; where you can specify multiple &lt;code dir=&quot;auto&quot;&gt;mon&lt;/code&gt; hosts IPs (this
+assumes port 6789 by default when not explicitly defined):&lt;/p&gt;&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    192.168.1.11,192.168.1.12,192.168.1.13:/ /home/rohit/ceph  ceph  name=rohit,secret=&amp;#x3C;SecretHere&gt;,defaults 0 2&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Then somethine like &lt;code dir=&quot;auto&quot;&gt;rsync&lt;/code&gt; can be used with cephfs mount to backup/sync local files:&lt;/p&gt;&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    rsync&lt;/span&gt;&lt;span&gt; -avzP&lt;/span&gt;&lt;span&gt; --delete-after&lt;/span&gt;&lt;span&gt; documents/&lt;/span&gt;&lt;span&gt; ceph/documents/&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/aside&gt;
+&lt;div&gt;&lt;h2 id=&quot;comments&quot;&gt;Comments&lt;/h2&gt;&lt;/div&gt;
+</content:encoded><category>guide</category><category>ceph</category><category>cloudstack</category></item><item><title>Wireguard VPN and Hotspot/AP Guide</title><link>https://scaleninja.com/blog/wireguard/</link><guid isPermaLink="true">https://scaleninja.com/blog/wireguard/</guid><pubDate>Sun, 01 Jan 2023 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;In this post, we setup a &lt;code dir=&quot;auto&quot;&gt;wireguard&lt;/code&gt; VPN based RasberryPi Wifi Hotspot/AP that
+uses &lt;code dir=&quot;auto&quot;&gt;hostapd&lt;/code&gt; and &lt;code dir=&quot;auto&quot;&gt;dnsmasq&lt;/code&gt; on Ubuntu 20.04. I needed this for my parents who
+want to be able to connect to our home network, they would connect to the AP and
+the AP is connected to the home network over VPN.&lt;/p&gt;
+&lt;p&gt;Let’s start by installing the dependencies&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    apt-get&lt;/span&gt;&lt;span&gt; update&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    apt-get&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; wireguard&lt;/span&gt;&lt;span&gt; wireguard-tools&lt;/span&gt;&lt;span&gt; dnsmasq&lt;/span&gt;&lt;span&gt; hostapd&lt;/span&gt;&lt;span&gt; resolvconf&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div&gt;&lt;h2 id=&quot;wireguard-vpn-setup&quot;&gt;Wireguard VPN Setup&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;I’m skipping &lt;a href=&quot;https://www.digitalocean.com/community/tutorials/how-to-set-up-wireguard-on-ubuntu-20-04&quot;&gt;how to configure Wireguard
+server&lt;/a&gt;
+and client. For quick reference, here’s what you need to do on the Ubuntu 20.04
+RaspberryPi AP host where the wireguard client is configured:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    cat&lt;/span&gt;&lt;span&gt; /etc/wireguard/wg0.conf&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    [Interface]&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    PrivateKey&lt;/span&gt;&lt;span&gt; =&lt;/span&gt;&lt;span&gt; &amp;#x3C;&lt;/span&gt;&lt;span&gt;your&lt;/span&gt;&lt;span&gt; client&apos;s private key&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    Address = &amp;#x3C;wg client ip&gt;/24&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    DNS = 8.8.8.8, 8.8.4.4&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    [Peer]&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    PublicKey = &amp;#x3C;wg server public key&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    PresharedKey = &amp;#x3C;wg server psk&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    Endpoint = &amp;#x3C;wg server IP or domain&gt;:51820&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    AllowedIPs = 0.0.0.0/0, ::0/0&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    PersistentKeepalive = 15&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Enable the wireguard VPN server service:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    systemctl&lt;/span&gt;&lt;span&gt; enable&lt;/span&gt;&lt;span&gt; --now&lt;/span&gt;&lt;span&gt; wg-quick@wg0&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You may check that the interface is UP using:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    wg&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    interface:&lt;/span&gt;&lt;span&gt; wg0&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      public&lt;/span&gt;&lt;span&gt; key:&lt;/span&gt;&lt;span&gt; &amp;#x3C;&lt;/span&gt;&lt;span&gt;hidde&lt;/span&gt;&lt;span&gt;n&lt;/span&gt;&lt;span&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      private&lt;/span&gt;&lt;span&gt; key:&lt;/span&gt;&lt;span&gt; (hidden)&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      listening&lt;/span&gt;&lt;span&gt; port:&lt;/span&gt;&lt;span&gt; &amp;#x3C;&lt;/span&gt;&lt;span&gt;hidde&lt;/span&gt;&lt;span&gt;n&lt;/span&gt;&lt;span&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      fwmark:&lt;/span&gt;&lt;span&gt; 0xca6c&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    peer:&lt;/span&gt;&lt;span&gt; &amp;#x3C;&lt;/span&gt;&lt;span&gt;hidde&lt;/span&gt;&lt;span&gt;n&lt;/span&gt;&lt;span&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      preshared&lt;/span&gt;&lt;span&gt; key:&lt;/span&gt;&lt;span&gt; (hidden)&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      endpoint:&lt;/span&gt;&lt;span&gt; &amp;#x3C;&lt;/span&gt;&lt;span&gt;wg&lt;/span&gt;&lt;span&gt; server&lt;/span&gt;&lt;span&gt; IP&lt;/span&gt;&lt;span&gt; her&lt;/span&gt;&lt;span&gt;e&lt;/span&gt;&lt;span&gt;&gt;&lt;/span&gt;&lt;span&gt;:51820&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      allowed&lt;/span&gt;&lt;span&gt; ips:&lt;/span&gt;&lt;span&gt; 0.0.0.0/0,&lt;/span&gt;&lt;span&gt; ::/0&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      latest&lt;/span&gt;&lt;span&gt; handshake:&lt;/span&gt;&lt;span&gt; 1&lt;/span&gt;&lt;span&gt; minute,&lt;/span&gt;&lt;span&gt; 36&lt;/span&gt;&lt;span&gt; seconds&lt;/span&gt;&lt;span&gt; ago&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      transfer:&lt;/span&gt;&lt;span&gt; 1.52&lt;/span&gt;&lt;span&gt; MiB&lt;/span&gt;&lt;span&gt; received,&lt;/span&gt;&lt;span&gt; 501.10&lt;/span&gt;&lt;span&gt; KiB&lt;/span&gt;&lt;span&gt; sent&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      persistent&lt;/span&gt;&lt;span&gt; keepalive:&lt;/span&gt;&lt;span&gt; every&lt;/span&gt;&lt;span&gt; 15&lt;/span&gt;&lt;span&gt; seconds&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div&gt;&lt;h2 id=&quot;configure-wireless-ap&quot;&gt;Configure Wireless AP&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;In my case, I’ve used here &lt;code dir=&quot;auto&quot;&gt;192.168.4.1/24&lt;/code&gt; for the hotspot/ap network.&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    $&lt;/span&gt;&lt;span&gt; cat&lt;/span&gt;&lt;span&gt; /etc/netplan/01-netplan.yaml&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    network:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      version:&lt;/span&gt;&lt;span&gt; 2&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      renderer:&lt;/span&gt;&lt;span&gt; networkd&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;      ethernets:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;        eth0:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;        dhcp4:&lt;/span&gt;&lt;span&gt; no&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;        addresses:&lt;/span&gt;&lt;span&gt; [192.168.1.5/24]&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;        gateway4:&lt;/span&gt;&lt;span&gt; 192.168.1.1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;        nameservers:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;          addresses:&lt;/span&gt;&lt;span&gt; [8.8.8.8,8.8.4.4]&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;        wlan0:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;          dhcp4:&lt;/span&gt;&lt;span&gt; false&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;          addresses:&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;          -&lt;/span&gt;&lt;span&gt; 192.168.4.1/24&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    $&lt;/span&gt;&lt;span&gt; netplan&lt;/span&gt;&lt;span&gt; generate&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    $&lt;/span&gt;&lt;span&gt; netplan&lt;/span&gt;&lt;span&gt; apply&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Next, setup &lt;code dir=&quot;auto&quot;&gt;hostapd&lt;/code&gt;:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    cat&lt;/span&gt;&lt;span&gt; /etc/default/hostapd&lt;/span&gt;&lt;span&gt; &lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    DAEMON_CONF&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;&quot;/etc/hostapd/hostapd.conf&quot;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    cat&lt;/span&gt;&lt;span&gt; /etc/hostapd/hostapd.conf&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    interface&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;wlan0&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    driver&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;nl80211&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ssid&lt;/span&gt;&lt;span&gt;=&amp;#x3C;&lt;/span&gt;&lt;span&gt;Wifi&lt;/span&gt;&lt;span&gt; Name&lt;/span&gt;&lt;span&gt; Her&lt;/span&gt;&lt;span&gt;e&lt;/span&gt;&lt;span&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    hw_mode&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;g&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    channel&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;6&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ieee80211n&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    wmm_enabled&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ht_capab&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;[HT40&lt;/span&gt;&lt;span&gt;][SHORT-GI-20][DSSS_CCK-40]&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    country_code&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;IN&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    macaddr_acl&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;0&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    auth_algs&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    ignore_broadcast_ssid&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;0&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    wpa&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;2&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    wpa_key_mgmt&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;WPA-PSK&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    wpa_passphrase&lt;/span&gt;&lt;span&gt;=&amp;#x3C;&lt;/span&gt;&lt;span&gt;password&lt;/span&gt;&lt;span&gt; here&lt;/span&gt;&lt;span&gt;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    wpa_pairwise&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;TKIP&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    rsn_pairwise&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;CCMP&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Enable the service:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    systemctl&lt;/span&gt;&lt;span&gt; unmask&lt;/span&gt;&lt;span&gt; hostapd&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    systemctl&lt;/span&gt;&lt;span&gt; enable&lt;/span&gt;&lt;span&gt; --now&lt;/span&gt;&lt;span&gt; hostapd&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Next, configure &lt;code dir=&quot;auto&quot;&gt;dnsmasq&lt;/code&gt; which allocate IPs to clients on the AP:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    $&lt;/span&gt;&lt;span&gt; cat&lt;/span&gt;&lt;span&gt; /etc/dnsmasq.conf&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    interface&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;wlan0&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    listen-address&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;192.168.4.1&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    dhcp-range&lt;/span&gt;&lt;span&gt;=&lt;/span&gt;&lt;span&gt;192.168.4.2,192.168.4.50,255.255.255.0,24h&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    bind-dynamic&lt;/span&gt;&lt;span&gt; &lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    domain-needed&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    bogus-priv&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    $&lt;/span&gt;&lt;span&gt; cat&lt;/span&gt;&lt;span&gt; /etc/resolv.conf&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    cat&lt;/span&gt;&lt;span&gt; /etc/resolv.conf&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    nameserver&lt;/span&gt;&lt;span&gt; 8.8.8.8&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    nameserver&lt;/span&gt;&lt;span&gt; 8.8.4.4&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    $&lt;/span&gt;&lt;span&gt; systemctl&lt;/span&gt;&lt;span&gt; stop&lt;/span&gt;&lt;span&gt; systemd-resolved&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    $&lt;/span&gt;&lt;span&gt; systemctl&lt;/span&gt;&lt;span&gt; mask&lt;/span&gt;&lt;span&gt; systemd-resolved&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    $&lt;/span&gt;&lt;span&gt; systemctl&lt;/span&gt;&lt;span&gt; restart&lt;/span&gt;&lt;span&gt; dnsmasq&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div&gt;&lt;h2 id=&quot;setup-vpn-based-hotspotap&quot;&gt;Setup VPN based HotSpot/AP&lt;/h2&gt;&lt;/div&gt;
+&lt;p&gt;Enable host to be able to forward packets:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    # Uncomment the following in /etc/sysctl.conf&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    net.ipv4.ip_forward=1&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Verify and apply the configuration:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    $&lt;/span&gt;&lt;span&gt; sysctl&lt;/span&gt;&lt;span&gt; -p&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    net.ipv4.ip_forward&lt;/span&gt;&lt;span&gt; =&lt;/span&gt;&lt;span&gt; 1&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Finally, allow IP masquerading by enabling following rules to tunnel Wifi/AP
+traffic via the wireguard &lt;code dir=&quot;auto&quot;&gt;wg0&lt;/code&gt; interface and persist rules on reboot:&lt;/p&gt;
+&lt;div data-nova-code-container=&quot;&quot;&gt;&lt;pre tabindex=&quot;0&quot; dir=&quot;ltr&quot;&gt;&lt;code&gt;&lt;span&gt;&lt;span&gt;    iptables&lt;/span&gt;&lt;span&gt; -t&lt;/span&gt;&lt;span&gt; nat&lt;/span&gt;&lt;span&gt; -A&lt;/span&gt;&lt;span&gt; POSTROUTING&lt;/span&gt;&lt;span&gt; -o&lt;/span&gt;&lt;span&gt; wg0&lt;/span&gt;&lt;span&gt; -j&lt;/span&gt;&lt;span&gt; MASQUERADE&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    iptables&lt;/span&gt;&lt;span&gt; -A&lt;/span&gt;&lt;span&gt; FORWARD&lt;/span&gt;&lt;span&gt; -i&lt;/span&gt;&lt;span&gt; wlan0&lt;/span&gt;&lt;span&gt; -o&lt;/span&gt;&lt;span&gt; wg0&lt;/span&gt;&lt;span&gt; -j&lt;/span&gt;&lt;span&gt; ACCEPT&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    iptables&lt;/span&gt;&lt;span&gt; -A&lt;/span&gt;&lt;span&gt; FORWARD&lt;/span&gt;&lt;span&gt; -i&lt;/span&gt;&lt;span&gt; wg0&lt;/span&gt;&lt;span&gt; -o&lt;/span&gt;&lt;span&gt; wlan0&lt;/span&gt;&lt;span&gt; -m&lt;/span&gt;&lt;span&gt; state&lt;/span&gt;&lt;span&gt; --state&lt;/span&gt;&lt;span&gt; RELATED,ESTABLISHED&lt;/span&gt;&lt;span&gt; -j&lt;/span&gt;&lt;span&gt; ACCEPT&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    apt-get&lt;/span&gt;&lt;span&gt; install&lt;/span&gt;&lt;span&gt; iptables-persistent&lt;/span&gt;&lt;/span&gt;
+&lt;span&gt;&lt;span&gt;    reboot&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;div&gt;&lt;h2 id=&quot;comments&quot;&gt;Comments&lt;/h2&gt;&lt;/div&gt;
+</content:encoded><category>guide</category></item></channel></rss>
